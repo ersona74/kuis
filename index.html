@@ -44,13 +44,12 @@
             object-fit: contain; 
         }
 
-        .shake { animation: shake 0.5s; }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px) rotate(-2deg); }
-            50% { transform: translateX(5px) rotate(2deg); }
-            75% { transform: translateX(-5px) rotate(-2deg); }
-            100% { transform: translateX(0); }
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
         }
         .pulse-timer { animation: pulse 1s infinite; }
         @keyframes pulse {
@@ -144,10 +143,13 @@
                     <button onclick="input('p1', 'C')" class="btn-3d bg-[#fecaca] border-b-[4px] border-[#f87171] rounded-2xl text-2xl font-black text-red-600 hover:bg-red-200">C</button>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="flex-none mt-1">
-                    <button onclick="submitAnswer('p1')" class="btn-3d w-full bg-[#3b82f6] border-b-[6px] border-blue-700 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-lg hover:bg-blue-500">
-                        🚀 JAWAB SEKARANG!
+                <!-- Submit & Pass Button -->
+                <div class="flex-none mt-1 flex gap-2">
+                    <button onclick="passQuestion('p1')" class="btn-3d w-1/3 bg-slate-400 border-b-[6px] border-slate-600 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-sm hover:bg-slate-500">
+                        ⏭️ PASS
+                    </button>
+                    <button onclick="submitAnswer('p1')" class="btn-3d w-2/3 bg-[#3b82f6] border-b-[6px] border-blue-700 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-lg hover:bg-blue-500">
+                        🚀 JAWAB!
                     </button>
                 </div>
             </div>
@@ -194,7 +196,7 @@
                 <div class="text-4xl animate-pulse">🌟</div>
                 <div class="flex-1 text-left">
                     <p class="font-black text-yellow-800 text-sm mb-0.5">Tips:</p>
-                    <p class="text-yellow-900 text-xs font-semibold">Hitung dengan teliti, jawab dengan cepat, dan menangkan pertandingan!</p>
+                    <p class="text-yellow-900 text-xs font-semibold">Gunakan tombol PASS jika ragu. Cepat dan tepat adalah kunci kemenangan!</p>
                 </div>
                 <div class="text-4xl">🌈</div>
             </div>
@@ -247,10 +249,13 @@
                     <button onclick="input('p2', 'C')" class="btn-3d bg-[#fecaca] border-b-[4px] border-[#f87171] rounded-2xl text-2xl font-black text-red-600 hover:bg-red-200">C</button>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="flex-none mt-1">
-                    <button onclick="submitAnswer('p2')" class="btn-3d w-full bg-[#fb7185] border-b-[6px] border-rose-600 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-lg hover:bg-rose-400">
-                        🚀 JAWAB SEKARANG!
+                <!-- Submit & Pass Button -->
+                <div class="flex-none mt-1 flex gap-2">
+                    <button onclick="passQuestion('p2')" class="btn-3d w-1/3 bg-slate-400 border-b-[6px] border-slate-600 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-sm hover:bg-slate-500">
+                        ⏭️ PASS
+                    </button>
+                    <button onclick="submitAnswer('p2')" class="btn-3d w-2/3 bg-[#fb7185] border-b-[6px] border-rose-600 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-lg hover:bg-rose-400">
+                        🚀 JAWAB!
                     </button>
                 </div>
             </div>
@@ -319,14 +324,31 @@
 
     <!-- JAVASCRIPT -->
     <script>
-        const questionsData = [
+        // Data Base Soal
+        const baseQuestionsData = [
             { q: "-2 + (-3) - (-4)", a: -1 }, { q: "3 - (-2) + (-1)", a: 4 }, { q: "4 - 3 - (-2)", a: 3 }, { q: "-3 + (-2) - 2", a: -7 }, { q: "-2 + (-5) - 1", a: -8 },
             { q: "3 - 4 - (-2)", a: 1 }, { q: "3 - 4 + (-3) - (-2)", a: -2 }, { q: "-2 - 4 + 3", a: -3 }, { q: "4 - 2 + (-3)", a: -1 }, { q: "5 - (-1) + 4", a: 10 }
         ];
 
-        const WIN_SCORE = 5; 
+        // FITUR BARU: Fungsi untuk mengacak soal (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            let newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        const WIN_SCORE = baseQuestionsData.length; 
         const GAME_DURATION = 120;
-        let state = { p1: { input: "", qIndex: 0, score: 0 }, p2: { input: "", qIndex: 0, score: 0 }, ropeOffset: 0, isGameOver: true, timeLeft: GAME_DURATION, timerInterval: null };
+        
+        // P1 dan P2 masing-masing mendapatkan array soal yang sudah diacak secara terpisah
+        let state = { 
+            p1: { input: "", qIndex: 0, score: 0, questions: shuffleArray(baseQuestionsData) }, 
+            p2: { input: "", qIndex: 0, score: 0, questions: shuffleArray(baseQuestionsData) }, 
+            ropeOffset: 0, isGameOver: true, timeLeft: GAME_DURATION, timerInterval: null 
+        };
 
         const ui = {
             p1: { display: document.getElementById('p1-display'), question: document.getElementById('p1-question'), qNum: document.getElementById('p1-q-num'), feedback: document.getElementById('p1-feedback'), score: document.getElementById('p1-score-display'), centerScore: document.getElementById('center-p1-score') },
@@ -340,25 +362,42 @@
         let targetRopeOffset = 0; let visualOffset = 0;
         let synth, polySynth, errorSynth, bgmLoop; let audioInitialized = false;
 
+        // PENGAMANAN AUDIO (TRY-CATCH)
         function initAudio() {
-            if (audioInitialized) return;
-            synth = new Tone.FMSynth().toDestination(); synth.volume.value = -5;
-            polySynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.05, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(); polySynth.volume.value = -2;
-            errorSynth = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 2, oscillator: { type: "square" } }).toDestination(); errorSynth.volume.value = -5;
-            const marimba = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 } }).toDestination(); marimba.volume.value = -12; 
-            const melody = ["C4", "E4", "G4", "C5", "G4", "E4"]; let step = 0;
-            bgmLoop = new Tone.Loop((time) => { marimba.triggerAttackRelease(melody[step % melody.length], "8n", time); step++; }, "8n");
-            Tone.Transport.bpm.value = 130; audioInitialized = true;
+            if (audioInitialized || typeof Tone === 'undefined') return;
+            try {
+                synth = new Tone.FMSynth().toDestination(); synth.volume.value = -5;
+                polySynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.05, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(); polySynth.volume.value = -2;
+                errorSynth = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 2, oscillator: { type: "square" } }).toDestination(); errorSynth.volume.value = -5;
+                const marimba = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 } }).toDestination(); marimba.volume.value = -12; 
+                const melody = ["C4", "E4", "G4", "C5", "G4", "E4"]; let step = 0;
+                bgmLoop = new Tone.Loop((time) => { marimba.triggerAttackRelease(melody[step % melody.length], "8n", time); step++; }, "8n");
+                Tone.Transport.bpm.value = 130; 
+                audioInitialized = true;
+            } catch(e) {
+                console.warn("Audio diblokir oleh browser TV", e);
+            }
         }
 
         const soundEffects = {
-            countdown: () => { if(audioInitialized) synth.triggerAttackRelease("C5", "0.1"); }, go: () => { if(audioInitialized) synth.triggerAttackRelease("C6", "0.4"); }, correct: () => { if(audioInitialized) polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.3"); }, wrong: () => { if(audioInitialized) errorSynth.triggerAttackRelease("G2", "0.3"); },
-            win: () => { if(!audioInitialized) return; const now = Tone.now(); polySynth.triggerAttackRelease(["C5", "E5", "G5"], "0.1", now); polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.1", now + 0.15); polySynth.triggerAttackRelease(["G5", "C6", "E6"], "0.4", now + 0.3); }
+            countdown: () => { try { if(audioInitialized) synth.triggerAttackRelease("C5", "0.1"); } catch(e){} }, 
+            go: () => { try { if(audioInitialized) synth.triggerAttackRelease("C6", "0.4"); } catch(e){} }, 
+            correct: () => { try { if(audioInitialized) polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.3"); } catch(e){} }, 
+            wrong: () => { try { if(audioInitialized) errorSynth.triggerAttackRelease("G2", "0.3"); } catch(e){} },
+            win: () => { try { if(!audioInitialized) return; const now = Tone.now(); polySynth.triggerAttackRelease(["C5", "E5", "G5"], "0.1", now); polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.1", now + 0.15); polySynth.triggerAttackRelease(["G5", "C6", "E6"], "0.4", now + 0.3); } catch(e){} }
         };
 
+        // PENGAMANAN SPEECH (TRY-CATCH)
         function ucapkan(teks) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(teks); msg.lang = 'id-ID'; msg.rate = 1.15; msg.pitch = 1.0; window.speechSynthesis.speak(msg);
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel(); 
+                    const msg = new SpeechSynthesisUtterance(teks); 
+                    msg.lang = 'id-ID'; msg.rate = 1.15; msg.pitch = 1.0; 
+                    window.speechSynthesis.speak(msg);
+                }
+            } catch(e) {
+                console.warn("Suara narator diblokir oleh browser TV", e);
             }
         }
 
@@ -374,7 +413,7 @@
 
         function startGameTimer() {
             state.timeLeft = GAME_DURATION; updateTimerUI();
-            if (audioInitialized) { Tone.Transport.start(); bgmLoop.start(0); }
+            try { if (typeof Tone !== 'undefined' && audioInitialized) { Tone.Transport.start(); bgmLoop.start(0); } } catch(e){}
             state.timerInterval = setInterval(() => {
                 state.timeLeft--; updateTimerUI();
                 if (state.timeLeft <= 0) { clearInterval(state.timerInterval); handleTimeUp(); }
@@ -382,9 +421,10 @@
         }
 
         function handleTimeUp() {
-            if (state.ropeOffset < 0) endGame("Tim Doraemon", "WAKTU HABIS!");
-            else if (state.ropeOffset > 0) endGame("Tim Nobita", "WAKTU HABIS!");
-            else { if(state.p1.score > state.p2.score) endGame("Tim Doraemon", "WAKTU HABIS!"); else if(state.p2.score > state.p1.score) endGame("Tim Nobita", "WAKTU HABIS!"); else endGame("Seri", "WAKTU HABIS!"); }
+            let winnerName = "Seri";
+            if (state.p1.score > state.p2.score) winnerName = "Tim Doraemon";
+            else if (state.p2.score > state.p1.score) winnerName = "Tim Nobita";
+            endGame(winnerName, "WAKTU HABIS!");
         }
 
         window.mulaiPersiapan = async function() {
@@ -396,7 +436,11 @@
                     if (fsPromise !== undefined && fsPromise.catch) fsPromise.catch(err => console.warn("Fullscreen diblokir"));
                 }
             } catch (e) { console.warn("Fullscreen error", e); }
-            await Tone.start(); initAudio();
+            
+            try {
+                if(typeof Tone !== 'undefined') { await Tone.start(); initAudio(); }
+            } catch(e) { console.warn("Tone audio error", e); }
+
             document.getElementById('startBtn').style.display = 'none';
             const countdownEl = document.getElementById('countdownText'); countdownEl.classList.remove('hidden');
             let count = 3; countdownEl.innerText = count; countdownEl.classList.add('countdown-anim'); soundEffects.countdown();
@@ -412,8 +456,17 @@
 
         function updatePlayerUI(player) {
             const playerData = state[player]; ui[player].display.innerText = playerData.input || "_";
-            const safeIndex = playerData.qIndex % questionsData.length;
-            ui[player].question.innerText = questionsData[safeIndex].q + " = ?"; ui[player].qNum.innerText = playerData.qIndex + 1; 
+            
+            // Cek apakah pemain sudah melewati/menyelesaikan semua soal menggunakan panjang array khusus mereka
+            if (playerData.qIndex < playerData.questions.length) {
+                // Gunakan soal dari array acak milik pemain tersebut
+                ui[player].question.innerText = playerData.questions[playerData.qIndex].q + " = ?"; 
+                ui[player].qNum.innerText = playerData.qIndex + 1; 
+            } else {
+                ui[player].question.innerText = "MENUNGGU..."; 
+                ui[player].qNum.innerText = "✓"; 
+            }
+            
             ui[player].score.innerText = playerData.score; ui[player].centerScore.innerText = playerData.score;
         }
 
@@ -425,45 +478,99 @@
             updatePlayerUI(player);
         };
 
+        // FITUR PASS (LEWATI SOAL)
+        window.passQuestion = function(player) {
+            if (state.isGameOver) return;
+            const playerData = state[player];
+            if (playerData.qIndex >= playerData.questions.length) return; // Gunakan panjang array pemain
+
+            const teamName = player === 'p1' ? 'Tim Doraemon' : 'Tim Nobita';
+            ucapkan(`${teamName} melewati soal!`);
+            
+            showFeedback(player, 'pass');
+            
+            state[player].input = "";
+            state[player].qIndex++;
+            
+            updatePlayerUI(player);
+            checkWin(); // Cek apakah setelah melewati soal ini game selesai
+        };
+
         window.submitAnswer = function(player) {
-            if (state.isGameOver) return; const playerData = state[player];
-            if (playerData.input === "" || playerData.input === "-") return;
-            const safeIndex = playerData.qIndex % questionsData.length; const correctAnswer = questionsData[safeIndex].a; const userAnswer = parseInt(playerData.input); const teamName = player === 'p1' ? 'Tim Doraemon' : 'Tim Nobita';
+            if (state.isGameOver) return; 
+            const playerData = state[player];
+            
+            // EFEK GETAR JIKA TOMBOL DITEKAN TAPI ANGKA KOSONG
+            if (playerData.input === "" || playerData.input === "-") {
+                const panel = ui[player].display.parentElement;
+                panel.classList.remove('shake');
+                void panel.offsetWidth; 
+                panel.classList.add('shake');
+                return;
+            }
+
+            if (playerData.qIndex >= playerData.questions.length) return; // Gunakan panjang array pemain
+
+            // Ambil jawaban yang benar dari array soal acak milik pemain
+            const correctAnswer = playerData.questions[playerData.qIndex].a; 
+            const userAnswer = parseInt(playerData.input); 
+            const teamName = player === 'p1' ? 'Tim Doraemon' : 'Tim Nobita';
             
             if (userAnswer === correctAnswer) {
-                // MENGEMBALIKAN SUARA JAWABAN BENAR
-                soundEffects.correct(); showFeedback(player, true); state[player].score += 10; 
+                soundEffects.correct(); showFeedback(player, 'correct'); state[player].score += 10; 
                 ucapkan(`Tepat sekali! ${teamName} benar! Poin menjadi ${state[player].score}!`);
                 
-                state.p1.qIndex++; state.p2.qIndex++; state.p1.input = ""; state.p2.input = "";
+                state[player].qIndex++; 
+                state[player].input = ""; 
+                
                 if (player === 'p1') state.ropeOffset -= 1; else state.ropeOffset += 1;
-                targetRopeOffset = state.ropeOffset; updatePlayerUI('p1'); updatePlayerUI('p2'); checkWin();
+                targetRopeOffset = state.ropeOffset; 
+                
+                updatePlayerUI(player); 
+                checkWin();
             } else {
-                // MENGEMBALIKAN SUARA JAWABAN SALAH
-                soundEffects.wrong(); showFeedback(player, false); playerData.input = ""; updatePlayerUI(player);
+                soundEffects.wrong(); showFeedback(player, 'wrong'); playerData.input = ""; updatePlayerUI(player);
                 ucapkan(`Sayang sekali, ${teamName} salah! Ayo coba lagi!`);
                 
-                ui[player].display.parentElement.classList.add('shake'); setTimeout(() => { ui[player].display.parentElement.classList.remove('shake'); }, 500);
+                const panel = ui[player].display.parentElement;
+                panel.classList.remove('shake');
+                void panel.offsetWidth;
+                panel.classList.add('shake');
             }
         };
 
-        function showFeedback(player, isCorrect) {
+        function showFeedback(player, status) {
             const fb = ui[player].feedback; const textEl = document.getElementById(`${player}-fb-text`); const iconEl = document.getElementById(`${player}-fb-icon`);
-            if (isCorrect) { textEl.innerText = "HEBAT!"; iconEl.innerText = "🌟"; fb.style.backgroundColor = player === 'p1' ? 'rgba(59, 130, 246, 0.95)' : 'rgba(251, 113, 133, 0.95)'; } 
-            else { textEl.innerText = "SALAH~"; iconEl.innerText = "💦"; fb.style.backgroundColor = 'rgba(100, 116, 139, 0.95)'; }
-            fb.style.opacity = '1'; fb.style.transform = 'scale(1.1)'; setTimeout(() => fb.style.transform = 'scale(1)', 100); setTimeout(() => { fb.style.opacity = '0'; }, 800);
+            if (status === 'correct') { 
+                textEl.innerText = "HEBAT!"; iconEl.innerText = "🌟"; fb.style.backgroundColor = player === 'p1' ? 'rgba(59, 130, 246, 0.95)' : 'rgba(251, 113, 133, 0.95)'; 
+            } else if (status === 'wrong') { 
+                textEl.innerText = "SALAH~"; iconEl.innerText = "💦"; fb.style.backgroundColor = 'rgba(100, 116, 139, 0.95)'; 
+            } else if (status === 'pass') {
+                textEl.innerText = "LEWAT!"; iconEl.innerText = "⏩"; fb.style.backgroundColor = 'rgba(148, 163, 184, 0.95)'; 
+            }
+            fb.style.opacity = '1'; fb.style.transform = 'scale(1.1)'; 
+            setTimeout(() => fb.style.transform = 'scale(1)', 100); 
+            setTimeout(() => { fb.style.opacity = '0'; }, 800);
         }
 
+        // FUNGSI CEK PEMENANG JIKA 10 SOAL SELESAI
         function checkWin() {
-            if (state.ropeOffset <= -WIN_SCORE) endGame("Tim Doraemon", "MENANG TELAK!"); else if (state.ropeOffset >= WIN_SCORE) endGame("Tim Nobita", "MENANG TELAK!");
+            // Cek index pada array pemain masing-masing
+            if (state.p1.qIndex >= state.p1.questions.length || state.p2.qIndex >= state.p2.questions.length) {
+                let winnerName = "Seri";
+                if (state.p1.score > state.p2.score) winnerName = "Tim Doraemon";
+                else if (state.p2.score > state.p1.score) winnerName = "Tim Nobita";
+                
+                endGame(winnerName, "SOAL SELESAI!");
+            }
         }
 
         function endGame(winnerName, titleText = "PERMAINAN SELESAI!") {
             if(state.isGameOver) return; state.isGameOver = true; clearInterval(state.timerInterval);
-            if (audioInitialized) { Tone.Transport.stop(); if (bgmLoop) bgmLoop.stop(); } soundEffects.win(); 
+            try { if (typeof Tone !== 'undefined' && audioInitialized) { Tone.Transport.stop(); if (bgmLoop) bgmLoop.stop(); } } catch(e){} 
+            soundEffects.win(); 
             
-            // Variabel penyimpan teks pengumuman agar dapat diucapkan
-            let teksBicara = "Waktu habis! ";
+            let teksBicara = "Permainan Selesai! ";
             
             setTimeout(() => {
                 const modal = document.getElementById('gameOverModal'); const winnerText = document.getElementById('winnerText'); const winnerSubText = document.getElementById('winnerSubText'); 
@@ -473,7 +580,6 @@
                 document.getElementById('finalScoreP1').innerText = state.p1.score; document.getElementById('finalScoreP2').innerText = state.p2.score;
                 modal.classList.remove('hidden'); modal.classList.add('flex'); winnerText.innerText = titleText;
                 
-                // Set Pujian, Penyemangat, dan Kalimat Bicara
                 if (winnerName === "Seri") { 
                     winnerSubText.innerText = "Wah, kekuatannya seimbang! SERI! 🤝"; 
                     praiseEl.innerText = "Kalian berdua sama-sama tangguh dan jenius matematika! Skor kalian seimbang! 🌟";
@@ -495,7 +601,6 @@
                     }
                 }
                 
-                // PANGGIL SUARA UNTUK PENGUMUMAN HASIL AKHIR
                 ucapkan(teksBicara);
                 
                 setTimeout(() => { modalContent.classList.remove('scale-95'); modalContent.classList.add('scale-100'); createConfetti(); }, 50);
@@ -512,11 +617,17 @@
         }
 
         window.resetGame = function() {
-            clearInterval(state.timerInterval); state = { p1: { input: "", qIndex: 0, score: 0 }, p2: { input: "", qIndex: 0, score: 0 }, ropeOffset: 0, isGameOver: true, timeLeft: GAME_DURATION, timerInterval: null }; targetRopeOffset = 0; visualOffset = 0;
+            clearInterval(state.timerInterval); 
+            // PERBARUI ARRAY ACAK SAAT GAME DI RESET
+            state = { 
+                p1: { input: "", qIndex: 0, score: 0, questions: shuffleArray(baseQuestionsData) }, 
+                p2: { input: "", qIndex: 0, score: 0, questions: shuffleArray(baseQuestionsData) }, 
+                ropeOffset: 0, isGameOver: true, timeLeft: GAME_DURATION, timerInterval: null 
+            }; 
+            targetRopeOffset = 0; visualOffset = 0;
             const modal = document.getElementById('gameOverModal'); const modalContent = document.getElementById('modalContent'); modalContent.classList.remove('scale-100'); modalContent.classList.add('scale-95');
             
-            // Hentikan suara jika masih ada sisa
-            if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+            try { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); } } catch(e){}
 
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); initUI(); const startOverlay = document.getElementById('startOverlay'); startOverlay.classList.remove('hidden', 'opacity-0'); document.getElementById('startBtn').style.display = 'inline-block'; document.getElementById('countdownText').classList.add('hidden'); }, 300);
         };
@@ -551,26 +662,21 @@
         let clouds = [{x: 100, y: 80, speed: 0.3, scale: 1}, {x: 600, y: 120, speed: 0.2, scale: 1.3}];
 
         function drawBackground() {
-            // Bukit Rumput
             ctx.fillStyle = "#86efac"; ctx.beginPath(); ctx.ellipse(canvas.width/2, canvas.height + 50, canvas.width*0.7, 200, 0, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = "#4ade80"; ctx.beginPath(); ctx.ellipse(canvas.width/2, canvas.height + 80, canvas.width*0.8, 200, 0, 0, Math.PI*2); ctx.fill();
             
-            // Matahari Tersenyum
             ctx.save(); ctx.translate(canvas.width - 120, 100);
             ctx.fillStyle = "#fde047"; ctx.beginPath(); ctx.arc(0, 0, 45, 0, Math.PI*2); ctx.fill();
             ctx.strokeStyle = "#facc15"; ctx.lineWidth = 5; ctx.lineCap="round";
             for(let i=0; i<8; i++) { let angle = (i/8) * Math.PI*2 + (Date.now()/3000); ctx.beginPath(); ctx.moveTo(Math.cos(angle)*55, Math.sin(angle)*55); ctx.lineTo(Math.cos(angle)*75, Math.sin(angle)*75); ctx.stroke(); }
-            // Muka Matahari
             ctx.fillStyle="#b45309"; ctx.beginPath(); ctx.arc(-15, -5, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15, -5, 4, 0, Math.PI*2); ctx.fill();
             ctx.beginPath(); ctx.arc(0, 10, 8, 0, Math.PI, false); ctx.stroke();
             ctx.fillStyle="#fca5a5"; ctx.beginPath(); ctx.arc(-22, 5, 5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(22, 5, 5, 0, Math.PI*2); ctx.fill();
             ctx.restore();
 
-            // Awan
             ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
             clouds.forEach(c => { c.x -= c.speed; if(c.x < -150) c.x = canvas.width + 150; ctx.save(); ctx.translate(c.x, c.y); ctx.scale(c.scale, c.scale); ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI*2); ctx.arc(20, -15, 30, 0, Math.PI*2); ctx.arc(45, 0, 25, 0, Math.PI*2); ctx.fill(); ctx.restore(); });
 
-            // Bunga kecil di rumput
             ctx.fillStyle = "#fbcfe8"; ctx.beginPath(); ctx.arc(150, canvas.height - 40, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = "#fef08a"; ctx.beginPath(); ctx.arc(650, canvas.height - 60, 4, 0, Math.PI*2); ctx.fill();
         }
 
@@ -578,18 +684,14 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height); drawBackground();
             visualOffset += (targetRopeOffset - visualOffset) * 0.1; const centerY = canvas.height - 80; const centerX = canvas.width / 2; const pixelOffset = (visualOffset / WIN_SCORE) * 250; const knotX = centerX + pixelOffset;
             
-            // Tali
             ctx.strokeStyle = "#b45309"; ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(100, centerY); const controlY = centerY + (Math.sin(Date.now() / 200) * 5) + Math.abs(visualOffset)*1.5; ctx.quadraticCurveTo(centerX, controlY, canvas.width - 100, centerY); ctx.stroke();
             ctx.strokeStyle = "#fcd34d"; ctx.lineWidth = 4; ctx.setLineDash([15, 20]); ctx.beginPath(); ctx.moveTo(100, centerY); ctx.quadraticCurveTo(centerX, controlY, canvas.width - 100, centerY); ctx.stroke(); ctx.setLineDash([]);
             
-            // Tiang Bendera Tengah & Bendera Merah (Ganti Bintang)
             ctx.strokeStyle="#78350f"; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(centerX, centerY + 20); ctx.lineTo(centerX, centerY - 80); ctx.stroke();
             ctx.fillStyle="#ef4444"; ctx.beginPath(); ctx.moveTo(centerX+3, centerY - 75); ctx.lineTo(centerX + 30, centerY - 65); ctx.lineTo(centerX+3, centerY - 55); ctx.fill();
             
-            // Penanda Tali (Knot)
             ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.roundRect(knotX - 10, controlY - 15, 20, 30, 5); ctx.fill(); ctx.strokeStyle = "white"; ctx.lineWidth=2; ctx.stroke();
 
-            // Karakter
             drawDoraemon(ctx, 220 + pixelOffset * 0.4, centerY + 10, true); drawDoraemon(ctx, 120 + pixelOffset * 0.4, centerY + 10, true);
             drawNobita(ctx, canvas.width - 220 + pixelOffset * 0.4, centerY + 10, false); drawNobita(ctx, canvas.width - 120 + pixelOffset * 0.4, centerY + 10, false);
             
