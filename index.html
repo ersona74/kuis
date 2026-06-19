@@ -2,38 +2,49 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarik Tambang Matematika</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tarik Tambang Math</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Fredoka', 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #e0e7ff, #f3e8ff);
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(180deg, #99ccff 0%, #c6ebf2 50%, #c2f0c2 100%);
             overflow: hidden; 
-            touch-action: manipulation;
+            touch-action: none;
         }
+        .font-nunito { font-family: 'Nunito', sans-serif; }
+        
+        /* Text Stroke & Glow Effects */
         .title-fun {
-            font-family: 'Nunito', sans-serif;
             color: #fff;
-            text-shadow: 3px 3px 0px #ec4899, 5px 5px 0px rgba(0,0,0,0.1);
+            -webkit-text-stroke: 2px #a855f7;
+            text-shadow: 3px 3px 0px #ec4899;
         }
+        .vs-text {
+            color: #fde047;
+            -webkit-text-stroke: 2px #9333ea;
+            text-shadow: 2px 2px 0px #a855f7;
+        }
+        
+        /* 3D Button Push Effect */
+        .btn-3d {
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s;
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0px rgba(0,0,0,0) !important;
+        }
+        
         canvas {
             display: block;
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Agar rasio tidak gepeng */
+            object-fit: contain; 
         }
-        .keypad-btn {
-            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .keypad-btn:active {
-            transform: scale(0.9) translateY(4px);
-        }
-        .shake {
-            animation: shake 0.5s;
-        }
+
+        .shake { animation: shake 0.5s; }
         @keyframes shake {
             0% { transform: translateX(0); }
             25% { transform: translateX(-5px) rotate(-2deg); }
@@ -41,197 +52,211 @@
             75% { transform: translateX(-5px) rotate(-2deg); }
             100% { transform: translateX(0); }
         }
-        .countdown-anim {
-            animation: popIn 1s ease-in-out;
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
-            50% { transform: scale(1.3) rotate(5deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 0; }
-        }
-        .pulse-timer {
-            animation: pulse 1s infinite;
-        }
+        .pulse-timer { animation: pulse 1s infinite; }
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); color: #ef4444; }
+            50% { transform: scale(1.1); color: #ef4444; border-color: #ef4444;}
             100% { transform: scale(1); }
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+
+        /* Decorative Background Elements (Stars/Confetti) */
+        .bg-pattern {
+            position: absolute; inset: 0; pointer-events: none; opacity: 0.4;
+            background-image: radial-gradient(#fff 2px, transparent 2px), radial-gradient(#fff 2px, transparent 2px);
+            background-size: 60px 60px; background-position: 0 0, 30px 30px;
+        }
     </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="h-screen w-screen flex flex-col relative">
+    <div class="bg-pattern z-0"></div>
 
-    <!-- Header -->
-    <header class="text-center py-3 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 shadow-[0_4px_0_rgb(147,51,234)] z-10 relative flex justify-between items-center px-4 lg:px-8">
-        <div class="flex-1 text-left hidden md:block">
-            <h1 class="text-2xl lg:text-3xl font-black title-fun">✨ Tarik Tambang Math</h1>
-            <p class="text-white/90 text-xs mt-1 font-bold tracking-wider">Doraemon vs Nobita!</p>
+    <!-- HEADER -->
+    <header class="flex-none flex justify-between items-center py-2 px-6 z-10 bg-white/20 backdrop-blur-sm border-b-4 border-white/50">
+        <div class="flex-1 flex items-center gap-2">
+            <div class="text-4xl">🌟</div>
+            <div class="leading-tight">
+                <h1 class="text-3xl font-nunito font-black title-fun">Tarik Tambang Math</h1>
+                <p class="text-white text-xs font-black tracking-widest drop-shadow-md">Seru Belajar, Asyik Menang!</p>
+            </div>
         </div>
         
-        <!-- Timer Display -->
-        <div class="bg-yellow-300 border-4 border-yellow-500 rounded-3xl px-6 py-2 shadow-lg transform rotate-2 hover:rotate-0 transition-transform flex-shrink-0 mx-auto">
-            <div class="text-[10px] lg:text-xs font-bold text-yellow-800 uppercase text-center mb-[-5px]">Waktu Tersisa</div>
-            <div id="timerDisplay" class="text-3xl lg:text-4xl font-black text-slate-800 font-mono tracking-wider">02:00</div>
+        <!-- Timer Pill -->
+        <div class="bg-purple-500 border-[4px] border-yellow-300 rounded-full px-6 py-1 flex flex-col items-center justify-center shadow-[0_4px_0_#9333ea] transform transition-transform" id="timerBox">
+            <span class="text-[10px] font-bold text-yellow-300 uppercase tracking-widest leading-none mb-0.5">Waktu Tersisa</span>
+            <span id="timerDisplay" class="text-3xl font-nunito font-black text-white leading-none drop-shadow-md">02:00</span>
         </div>
         
-        <div class="flex-1 hidden md:flex justify-end">
-            <button onclick="toggleFullScreen()" class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white border-2 border-white/50 font-bold py-2 px-4 rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-2">
+        <div class="flex-1 flex justify-end">
+            <button onclick="toggleFullScreen()" class="bg-purple-500 hover:bg-purple-400 text-white border-2 border-purple-300 font-bold py-2 px-4 rounded-full shadow-[0_4px_0_#7e22ce] btn-3d flex items-center gap-2 text-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                 Layar Penuh
             </button>
         </div>
     </header>
 
-    <!-- Main Game Area -->
-    <main class="flex-1 flex flex-col lg:flex-row items-stretch justify-center p-2 lg:p-4 gap-2 lg:gap-4 max-h-[calc(100vh-80px)]">
+    <!-- MAIN GAME AREA -->
+    <main class="flex-1 flex flex-row items-stretch justify-center p-3 gap-4 min-h-0 w-full z-10">
         
-        <!-- Player 1 (Blue) Panel -->
-        <div class="w-full lg:w-1/4 bg-blue-50/90 rounded-3xl shadow-xl border-4 border-blue-300 flex flex-col overflow-hidden relative backdrop-blur-sm">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-400 text-white py-3 lg:py-4 flex justify-center items-center shadow-md border-b-4 border-blue-600 px-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-blue-700 border-2 border-white"></div>
-                    <span class="font-black text-xl lg:text-2xl tracking-wide">Tim Doraemon</span>
+        <!-- ==================== PLAYER 1 (DORAEMON) ==================== -->
+        <div class="w-[28%] bg-[#e6f2ff] rounded-[32px] border-[6px] border-white shadow-xl flex flex-col relative mt-4">
+            <!-- Header Tag -->
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-[#3b82f6] border-[4px] border-white rounded-full py-1.5 px-6 flex items-center gap-2 shadow-md whitespace-nowrap">
+                <div class="w-6 h-6 bg-white rounded-full flex items-center justify-center text-lg shadow-inner overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/shapes/svg?seed=dora&backgroundColor=ffffff" alt="Doraemon" class="w-full h-full opacity-0">
+                    <span class="absolute text-xl">🔵</span>
+                </div>
+                <span class="text-white font-nunito font-black text-xl tracking-wide">TIM DORAEMON</span>
+            </div>
+
+            <div class="p-4 pt-8 flex-1 flex flex-col gap-2 h-full min-h-0">
+                <!-- Soal Container -->
+                <div class="flex-none relative bg-white rounded-2xl border-2 border-blue-100 shadow-sm p-3 pt-4 text-center mt-2">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#3b82f6] text-white text-[10px] font-bold px-4 py-0.5 rounded-b-lg rounded-t-sm">SOAL <span id="p1-q-num">1</span></div>
+                    <div id="p1-question" class="text-2xl font-black text-slate-700">-2 + (-3) - (-4) = ?</div>
+                </div>
+
+                <!-- Skor Container -->
+                <div class="flex-none bg-[#3b82f6] rounded-2xl p-2 relative flex flex-col items-center justify-center mt-2 shadow-inner border-b-4 border-blue-700">
+                    <div class="absolute -top-3 bg-blue-400 text-white text-[10px] font-bold px-3 py-0.5 rounded-full border-2 border-[#3b82f6]">SKOR EMAS</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="bg-yellow-400 text-yellow-700 w-8 h-8 rounded-full border-2 border-yellow-200 flex items-center justify-center font-black text-lg shadow-sm">⭐</div>
+                        <span id="p1-score-display" class="text-3xl font-black text-white leading-none">0</span>
+                        <span class="text-sm font-bold text-blue-200">pt</span>
+                    </div>
+                </div>
+
+                <!-- Display Input Box -->
+                <div id="p1-display" class="flex-none bg-white text-right text-3xl px-4 py-2 rounded-full border-b-[4px] border-blue-200 h-12 flex items-center justify-end font-nunito font-black text-blue-900 shadow-sm mt-1"></div>
+
+                <!-- Keypad -->
+                <div class="flex-1 min-h-0 grid grid-cols-3 gap-2 mt-1">
+                    <button onclick="input('p1', '1')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">1</button>
+                    <button onclick="input('p1', '2')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">2</button>
+                    <button onclick="input('p1', '3')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">3</button>
+                    <button onclick="input('p1', '4')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">4</button>
+                    <button onclick="input('p1', '5')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">5</button>
+                    <button onclick="input('p1', '6')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">6</button>
+                    <button onclick="input('p1', '7')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">7</button>
+                    <button onclick="input('p1', '8')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">8</button>
+                    <button onclick="input('p1', '9')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">9</button>
+                    <button onclick="input('p1', '+/-')" class="btn-3d bg-[#fef08a] border-b-[4px] border-[#eab308] rounded-2xl text-2xl font-black text-yellow-700 hover:bg-yellow-200">+/-</button>
+                    <button onclick="input('p1', '0')" class="btn-3d bg-white border-b-[4px] border-blue-200 rounded-2xl text-2xl font-black text-blue-600 hover:bg-blue-50">0</button>
+                    <button onclick="input('p1', 'C')" class="btn-3d bg-[#fecaca] border-b-[4px] border-[#f87171] rounded-2xl text-2xl font-black text-red-600 hover:bg-red-200">C</button>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex-none mt-1">
+                    <button onclick="submitAnswer('p1')" class="btn-3d w-full bg-[#3b82f6] border-b-[6px] border-blue-700 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-lg hover:bg-blue-500">
+                        🚀 JAWAB SEKARANG!
+                    </button>
                 </div>
             </div>
             
-            <div class="p-3 lg:p-4 flex-1 flex flex-col justify-between h-full">
-                <!-- Area Soal -->
-                <div class="text-center mb-2 bg-white rounded-3xl p-3 border-2 border-blue-100 shadow-sm flex-shrink-0">
-                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">Soal <span id="p1-q-num">1</span></span>
-                    <div id="p1-question" class="text-xl lg:text-2xl font-black text-slate-800 mt-2 flex items-center justify-center">
-                        -2 + (-3) - (-4) = ?
-                    </div>
-                </div>
-
-                <!-- Lencana Poin (Mengisi Ruang Kosong) -->
-                <div class="flex-1 flex flex-col items-center justify-center min-h-[80px]">
-                    <div class="bg-gradient-to-b from-yellow-300 to-yellow-500 border-4 border-yellow-200 rounded-3xl p-4 shadow-[0_8px_0_rgb(202,138,4)] transform hover:scale-105 transition-transform flex flex-col items-center w-3/4 max-w-[200px]">
-                        <span class="text-xs font-black text-yellow-900 uppercase tracking-widest mb-1">Skor Emas</span>
-                        <div class="flex items-end justify-center gap-1">
-                            <span id="p1-score-display" class="text-5xl lg:text-6xl font-black text-white drop-shadow-md leading-none">0</span>
-                            <span class="text-lg font-bold text-yellow-100 mb-1">pt</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Area Input Jawab (Kapsul) -->
-                <div id="p1-display" class="bg-white text-right text-3xl lg:text-4xl px-8 py-3 rounded-full border-4 border-blue-200 h-16 lg:h-20 mb-3 flex items-center justify-end font-mono font-black text-blue-900 shadow-inner flex-shrink-0 overflow-hidden">
-                    
-                </div>
-
-                <!-- P1 Keypad -->
-                <div class="grid grid-cols-3 gap-2 flex-shrink-0">
-                    <button onclick="input('p1', '1')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">1</button>
-                    <button onclick="input('p1', '2')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">2</button>
-                    <button onclick="input('p1', '3')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">3</button>
-                    <button onclick="input('p1', '4')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">4</button>
-                    <button onclick="input('p1', '5')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">5</button>
-                    <button onclick="input('p1', '6')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">6</button>
-                    <button onclick="input('p1', '7')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">7</button>
-                    <button onclick="input('p1', '8')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">8</button>
-                    <button onclick="input('p1', '9')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">9</button>
-                    <button onclick="input('p1', '+/-')" class="keypad-btn bg-yellow-100 border-b-4 border-yellow-300 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-yellow-600 hover:bg-yellow-200 active:border-b-0 active:translate-y-1">+/-</button>
-                    <button onclick="input('p1', '0')" class="keypad-btn bg-white border-b-4 border-blue-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-blue-500 hover:bg-blue-50 active:border-b-0 active:translate-y-1">0</button>
-                    <button onclick="input('p1', 'C')" class="keypad-btn bg-red-100 border-b-4 border-red-300 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-200 active:border-b-0 active:translate-y-1">C</button>
-                </div>
-                <!-- Tombol Jawab Jelly -->
-                <button onclick="submitAnswer('p1')" class="keypad-btn mt-3 w-full bg-blue-500 border-b-8 border-blue-700 text-white rounded-[30px] py-4 font-black text-lg lg:text-xl shadow-[0_5px_15px_rgba(59,130,246,0.4)] hover:bg-blue-400 active:border-b-0 active:translate-y-2 relative overflow-hidden flex-shrink-0">
-                    <div class="absolute inset-x-0 top-0 h-1/2 bg-white/30 rounded-b-full pointer-events-none"></div>
-                    🚀 JAWAB SEKARANG!
-                </button>
-            </div>
             <!-- Feedback Overlay -->
-            <div id="p1-feedback" class="absolute inset-0 bg-blue-400 bg-opacity-95 flex flex-col items-center justify-center text-white text-5xl font-black opacity-0 pointer-events-none transition-all duration-200 rounded-3xl z-20">
+            <div id="p1-feedback" class="absolute inset-0 bg-[#3b82f6] bg-opacity-95 flex flex-col items-center justify-center text-white text-5xl font-black opacity-0 pointer-events-none transition-all duration-200 rounded-[26px] z-20">
                 <span id="p1-fb-icon" class="text-6xl mb-2">✨</span>
                 <span id="p1-fb-text">YEY!</span>
             </div>
         </div>
 
-        <!-- Center Canvas -->
-        <div class="flex-1 bg-white/60 backdrop-blur-sm rounded-3xl shadow-xl flex flex-col items-center justify-center overflow-hidden border-4 border-white p-2 relative h-64 lg:h-auto">
-            <canvas id="gameCanvas" width="800" height="500" class="rounded-2xl"></canvas>
+        <!-- ==================== CENTER CANVAS AREA ==================== -->
+        <div class="flex-1 flex flex-col items-center justify-between min-h-0 gap-2">
             
-            <!-- Progress Bars -->
-            <div class="absolute bottom-4 left-0 w-full flex justify-between px-6 lg:px-12 z-10">
-                <div class="w-2/5">
-                    <div class="text-[10px] lg:text-xs text-blue-700 font-black mb-1 bg-white/70 inline-block px-3 py-1 rounded-full backdrop-blur-sm border border-blue-100 shadow-sm flex items-center gap-1">
-                        <div class="w-2 h-2 rounded-full bg-blue-500"></div> Tarikan Doraemon
-                    </div>
-                    <div class="h-4 lg:h-5 w-full bg-white border-2 border-slate-200 rounded-full overflow-hidden shadow-inner p-1">
-                        <div id="p1-bar" class="h-full bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all duration-300" style="width: 50%;"></div>
-                    </div>
+            <!-- Floating Cloud Text -->
+            <div class="flex-none bg-white/90 backdrop-blur-sm rounded-full px-8 py-3 shadow-[0_6px_0_rgba(0,0,0,0.05)] border-4 border-white mt-4 animate-bounce relative text-center">
+                <span class="font-nunito font-black text-purple-600 text-xl tracking-wide leading-tight block">Tarik tambang<br>jawaban yang benar!</span>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="flex-1 w-full min-h-0 flex items-center justify-center">
+                <canvas id="gameCanvas" width="800" height="400" class="drop-shadow-lg"></canvas>
+            </div>
+
+            <!-- VS & Center Score Bar -->
+            <div class="flex-none w-full flex justify-center items-center gap-4 px-4">
+                <!-- P1 Center Score -->
+                <div class="bg-[#3b82f6] border-4 border-white rounded-full flex items-center px-2 py-1 shadow-md gap-3 w-32 justify-between">
+                    <div class="bg-white rounded-full w-8 h-8 flex justify-center items-center text-lg">🔵</div>
+                    <div class="flex items-end gap-1 mr-2 text-white"><span id="center-p1-score" class="font-black text-2xl leading-none">0</span><span class="text-[10px] font-bold">pt</span></div>
                 </div>
-                <div class="w-2/5 text-right flex flex-col items-end">
-                    <div class="text-[10px] lg:text-xs text-red-700 font-black mb-1 bg-white/70 inline-block px-3 py-1 rounded-full backdrop-blur-sm border border-red-100 shadow-sm flex items-center gap-1">
-                        <div class="w-2 h-2 rounded-full bg-yellow-400"></div> Tarikan Nobita
-                    </div>
-                    <div class="h-4 lg:h-5 w-full bg-white border-2 border-slate-200 rounded-full overflow-hidden shadow-inner p-1 flex justify-end">
-                        <div id="p2-bar" class="h-full bg-gradient-to-l from-red-400 to-red-500 rounded-full transition-all duration-300" style="width: 50%;"></div>
-                    </div>
+                
+                <div class="font-nunito font-black text-4xl vs-text transform -rotate-6">VS</div>
+
+                <!-- P2 Center Score -->
+                <div class="bg-[#fb7185] border-4 border-white rounded-full flex items-center px-2 py-1 shadow-md gap-3 w-32 justify-between flex-row-reverse">
+                    <div class="bg-white rounded-full w-8 h-8 flex justify-center items-center text-lg">🟡</div>
+                    <div class="flex items-end gap-1 ml-2 text-white"><span id="center-p2-score" class="font-black text-2xl leading-none">0</span><span class="text-[10px] font-bold">pt</span></div>
                 </div>
+            </div>
+
+            <!-- Tips Box -->
+            <div class="flex-none w-[90%] bg-[#fef08a] border-4 border-white rounded-[24px] p-3 shadow-md flex items-center gap-4 mb-2">
+                <div class="text-4xl animate-pulse">🌟</div>
+                <div class="flex-1 text-left">
+                    <p class="font-black text-yellow-800 text-sm mb-0.5">Tips:</p>
+                    <p class="text-yellow-900 text-xs font-semibold">Hitung dengan teliti, jawab dengan cepat, dan menangkan pertandingan!</p>
+                </div>
+                <div class="text-4xl">🌈</div>
             </div>
         </div>
 
-        <!-- Player 2 (Red) Panel -->
-        <div class="w-full lg:w-1/4 bg-red-50/90 rounded-3xl shadow-xl border-4 border-red-300 flex flex-col overflow-hidden relative backdrop-blur-sm">
-            <div class="bg-gradient-to-r from-red-500 to-red-400 text-white py-3 lg:py-4 flex justify-center items-center shadow-md border-b-4 border-red-600 px-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white"></div>
-                    <span class="font-black text-xl lg:text-2xl tracking-wide">Tim Nobita</span>
+        <!-- ==================== PLAYER 2 (NOBITA) ==================== -->
+        <div class="w-[28%] bg-[#ffe6ea] rounded-[32px] border-[6px] border-white shadow-xl flex flex-col relative mt-4">
+            <!-- Header Tag -->
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-[#fb7185] border-[4px] border-white rounded-full py-1.5 px-6 flex items-center gap-2 shadow-md whitespace-nowrap">
+                <div class="w-6 h-6 bg-white rounded-full flex items-center justify-center text-lg shadow-inner overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/shapes/svg?seed=nobi&backgroundColor=ffffff" alt="Nobita" class="w-full h-full opacity-0">
+                    <span class="absolute text-xl">🟡</span>
+                </div>
+                <span class="text-white font-nunito font-black text-xl tracking-wide">TIM NOBITA</span>
+            </div>
+
+            <div class="p-4 pt-8 flex-1 flex flex-col gap-2 h-full min-h-0">
+                <!-- Soal Container -->
+                <div class="flex-none relative bg-white rounded-2xl border-2 border-red-100 shadow-sm p-3 pt-4 text-center mt-2">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#fb7185] text-white text-[10px] font-bold px-4 py-0.5 rounded-b-lg rounded-t-sm">SOAL <span id="p2-q-num">1</span></div>
+                    <div id="p2-question" class="text-2xl font-black text-slate-700">-2 + (-3) - (-4) = ?</div>
+                </div>
+
+                <!-- Skor Container -->
+                <div class="flex-none bg-[#fb7185] rounded-2xl p-2 relative flex flex-col items-center justify-center mt-2 shadow-inner border-b-4 border-rose-600">
+                    <div class="absolute -top-3 bg-rose-400 text-white text-[10px] font-bold px-3 py-0.5 rounded-full border-2 border-[#fb7185]">SKOR EMAS</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="bg-yellow-400 text-yellow-700 w-8 h-8 rounded-full border-2 border-yellow-200 flex items-center justify-center font-black text-lg shadow-sm">⭐</div>
+                        <span id="p2-score-display" class="text-3xl font-black text-white leading-none">0</span>
+                        <span class="text-sm font-bold text-rose-200">pt</span>
+                    </div>
+                </div>
+
+                <!-- Display Input Box -->
+                <div id="p2-display" class="flex-none bg-white text-right text-3xl px-4 py-2 rounded-full border-b-[4px] border-red-200 h-12 flex items-center justify-end font-nunito font-black text-rose-900 shadow-sm mt-1"></div>
+
+                <!-- Keypad -->
+                <div class="flex-1 min-h-0 grid grid-cols-3 gap-2 mt-1">
+                    <button onclick="input('p2', '1')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">1</button>
+                    <button onclick="input('p2', '2')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">2</button>
+                    <button onclick="input('p2', '3')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">3</button>
+                    <button onclick="input('p2', '4')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">4</button>
+                    <button onclick="input('p2', '5')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">5</button>
+                    <button onclick="input('p2', '6')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">6</button>
+                    <button onclick="input('p2', '7')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">7</button>
+                    <button onclick="input('p2', '8')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">8</button>
+                    <button onclick="input('p2', '9')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">9</button>
+                    <button onclick="input('p2', '+/-')" class="btn-3d bg-[#fef08a] border-b-[4px] border-[#eab308] rounded-2xl text-2xl font-black text-yellow-700 hover:bg-yellow-200">+/-</button>
+                    <button onclick="input('p2', '0')" class="btn-3d bg-white border-b-[4px] border-red-200 rounded-2xl text-2xl font-black text-rose-600 hover:bg-rose-50">0</button>
+                    <button onclick="input('p2', 'C')" class="btn-3d bg-[#fecaca] border-b-[4px] border-[#f87171] rounded-2xl text-2xl font-black text-red-600 hover:bg-red-200">C</button>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex-none mt-1">
+                    <button onclick="submitAnswer('p2')" class="btn-3d w-full bg-[#fb7185] border-b-[6px] border-rose-600 text-white rounded-[24px] h-12 flex items-center justify-center font-nunito font-black text-lg hover:bg-rose-400">
+                        🚀 JAWAB SEKARANG!
+                    </button>
                 </div>
             </div>
             
-            <div class="p-3 lg:p-4 flex-1 flex flex-col justify-between h-full">
-                <!-- Area Soal -->
-                <div class="text-center mb-2 bg-white rounded-3xl p-3 border-2 border-red-100 shadow-sm flex-shrink-0">
-                    <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1 rounded-full">Soal <span id="p2-q-num">1</span></span>
-                    <div id="p2-question" class="text-xl lg:text-2xl font-black text-slate-800 mt-2 flex items-center justify-center">
-                        -2 + (-3) - (-4) = ?
-                    </div>
-                </div>
-                
-                <!-- Lencana Poin (Mengisi Ruang Kosong) -->
-                <div class="flex-1 flex flex-col items-center justify-center min-h-[80px]">
-                    <div class="bg-gradient-to-b from-yellow-300 to-yellow-500 border-4 border-yellow-200 rounded-3xl p-4 shadow-[0_8px_0_rgb(202,138,4)] transform hover:scale-105 transition-transform flex flex-col items-center w-3/4 max-w-[200px]">
-                        <span class="text-xs font-black text-yellow-900 uppercase tracking-widest mb-1">Skor Emas</span>
-                        <div class="flex items-end justify-center gap-1">
-                            <span id="p2-score-display" class="text-5xl lg:text-6xl font-black text-white drop-shadow-md leading-none">0</span>
-                            <span class="text-lg font-bold text-yellow-100 mb-1">pt</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Area Input Jawab (Kapsul) -->
-                <div id="p2-display" class="bg-white text-right text-3xl lg:text-4xl px-8 py-3 rounded-full border-4 border-red-200 h-16 lg:h-20 mb-3 flex items-center justify-end font-mono font-black text-red-900 shadow-inner flex-shrink-0 overflow-hidden">
-                    
-                </div>
-
-                <!-- P2 Keypad -->
-                <div class="grid grid-cols-3 gap-2 flex-shrink-0">
-                    <button onclick="input('p2', '1')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">1</button>
-                    <button onclick="input('p2', '2')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">2</button>
-                    <button onclick="input('p2', '3')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">3</button>
-                    <button onclick="input('p2', '4')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">4</button>
-                    <button onclick="input('p2', '5')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">5</button>
-                    <button onclick="input('p2', '6')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">6</button>
-                    <button onclick="input('p2', '7')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">7</button>
-                    <button onclick="input('p2', '8')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">8</button>
-                    <button onclick="input('p2', '9')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">9</button>
-                    <button onclick="input('p2', '+/-')" class="keypad-btn bg-yellow-100 border-b-4 border-yellow-300 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-yellow-600 hover:bg-yellow-200 active:border-b-0 active:translate-y-1">+/-</button>
-                    <button onclick="input('p2', '0')" class="keypad-btn bg-white border-b-4 border-red-200 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-50 active:border-b-0 active:translate-y-1">0</button>
-                    <button onclick="input('p2', 'C')" class="keypad-btn bg-red-100 border-b-4 border-red-300 rounded-2xl p-2 lg:p-3 text-xl lg:text-2xl font-black text-red-500 hover:bg-red-200 active:border-b-0 active:translate-y-1">C</button>
-                </div>
-                <!-- Tombol Jawab Jelly -->
-                <button onclick="submitAnswer('p2')" class="keypad-btn mt-3 w-full bg-red-500 border-b-8 border-red-700 text-white rounded-[30px] py-4 font-black text-lg lg:text-xl shadow-[0_5px_15px_rgba(239,68,68,0.4)] hover:bg-red-400 active:border-b-0 active:translate-y-2 relative overflow-hidden flex-shrink-0">
-                    <div class="absolute inset-x-0 top-0 h-1/2 bg-white/30 rounded-b-full pointer-events-none"></div>
-                    🚀 JAWAB SEKARANG!
-                </button>
-            </div>
             <!-- Feedback Overlay -->
-            <div id="p2-feedback" class="absolute inset-0 bg-red-400 bg-opacity-95 flex flex-col items-center justify-center text-white text-5xl font-black opacity-0 pointer-events-none transition-all duration-200 rounded-3xl z-20">
+            <div id="p2-feedback" class="absolute inset-0 bg-[#fb7185] bg-opacity-95 flex flex-col items-center justify-center text-white text-5xl font-black opacity-0 pointer-events-none transition-all duration-200 rounded-[26px] z-20">
                 <span id="p2-fb-icon" class="text-6xl mb-2">✨</span>
                 <span id="p2-fb-text">YEY!</span>
             </div>
@@ -239,690 +264,339 @@
 
     </main>
 
-    <!-- Start / Countdown Overlay -->
-    <div id="startOverlay" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center z-[60] transition-opacity duration-500">
+    <!-- Start Overlay -->
+    <div id="startOverlay" class="fixed inset-0 bg-sky-900/90 backdrop-blur-md flex flex-col items-center justify-center z-[60] transition-opacity duration-500">
         <div class="text-center mb-8 px-4">
-            <h2 class="text-4xl lg:text-5xl font-black text-yellow-300 mb-2 drop-shadow-lg title-fun">Siap Tarik Tambang?</h2>
-            <p class="text-lg lg:text-xl text-white font-semibold">Waktu cuma 2 Menit! Jawab yang cepat! ⏱️</p>
+            <h2 class="text-6xl font-nunito font-black title-fun mb-4">Siap Tarik Tambang?</h2>
+            <p class="text-2xl text-white font-bold bg-white/20 inline-block px-6 py-2 rounded-full border-2 border-white/50">Waktu cuma 2 Menit! Jawab yang cepat! ⏱️</p>
         </div>
-        <button id="startBtn" onclick="mulaiPersiapan()" class="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white font-black py-5 px-10 lg:px-12 rounded-full text-3xl lg:text-4xl shadow-[0_10px_0_rgb(21,128,61)] transition-transform transform hover:-translate-y-1 active:translate-y-2 active:shadow-[0_0px_0_rgb(21,128,61)] mb-4 animate-bounce border-4 border-white">
+        <button id="startBtn" onclick="mulaiPersiapan()" class="btn-3d bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-white font-nunito font-black py-5 px-12 rounded-full text-4xl shadow-[0_10px_0_#166534] border-[6px] border-white animate-bounce">
             🎮 MULAI MAIN!
         </button>
-        <div id="countdownText" class="text-white font-black text-[150px] lg:text-[200px] hidden drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">3</div>
+        <div id="countdownText" class="font-nunito text-white font-black text-[250px] hidden drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">3</div>
     </div>
 
     <!-- Modal Game Over -->
-    <div id="gameOverModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="bg-white rounded-[40px] p-6 lg:p-8 max-w-lg w-11/12 lg:w-full text-center shadow-2xl transform scale-95 transition-transform duration-300 border-8 border-yellow-300 relative" id="modalContent">
+    <div id="gameOverModal" class="fixed inset-0 bg-sky-900/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-[40px] p-8 max-w-2xl w-11/12 text-center shadow-2xl transform scale-95 transition-transform duration-300 border-8 border-[#fef08a] relative" id="modalContent">
             <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden rounded-[32px] z-0"></div>
 
-            <h2 id="winnerText" class="text-4xl lg:text-5xl font-black mb-2 title-fun relative z-10">WAKTU HABIS!</h2>
-            <p id="winnerSubText" class="text-slate-500 mb-6 font-bold text-lg relative z-10">Siapa yang menang?</p>
+            <h2 id="winnerText" class="text-5xl font-nunito font-black mb-2 title-fun relative z-10">WAKTU HABIS!</h2>
+            <p id="winnerSubText" class="text-slate-500 mb-4 font-bold text-xl relative z-10">Siapa yang menang?</p>
             
-            <!-- Papan Skor Akhir -->
-            <div class="bg-gradient-to-b from-slate-50 to-slate-100 rounded-3xl p-4 lg:p-5 mb-8 border-4 border-slate-200 shadow-inner relative z-10">
-                <p class="text-xs lg:text-sm font-black text-slate-400 uppercase tracking-widest mb-3">🔥 TOTAL SKOR BENAR 🔥</p>
-                <div class="flex justify-between items-center px-2 lg:px-4">
-                    <div class="text-center bg-blue-100 rounded-2xl p-2 lg:p-3 border-2 border-blue-200 w-1/3">
-                        <div class="text-3xl lg:text-4xl font-black text-blue-600 mb-1" id="finalScoreP1">0</div>
-                        <div class="text-[10px] lg:text-xs font-black text-blue-800">🔵 DORAEMON</div>
-                    </div>
-                    <div class="text-2xl lg:text-3xl text-yellow-400 font-black title-fun px-2">VS</div>
-                    <div class="text-center bg-red-100 rounded-2xl p-2 lg:p-3 border-2 border-red-200 w-1/3">
-                        <div class="text-3xl lg:text-4xl font-black text-red-600 mb-1" id="finalScoreP2">0</div>
-                        <div class="text-[10px] lg:text-xs font-black text-red-800">🟡 NOBITA</div>
-                    </div>
+            <!-- Kotak Skor Akhir -->
+            <div class="bg-slate-50 rounded-3xl p-5 mb-6 border-4 border-slate-200 relative z-10 flex justify-between items-center px-6">
+                <div class="text-center w-1/3">
+                    <div class="text-5xl font-black text-[#3b82f6] mb-1" id="finalScoreP1">0</div>
+                    <div class="text-sm font-black text-blue-800 bg-blue-100 rounded-full px-2 py-1">🔵 DORAEMON</div>
+                </div>
+                <div class="text-4xl text-yellow-400 font-black font-nunito px-2 drop-shadow-md">VS</div>
+                <div class="text-center w-1/3">
+                    <div class="text-5xl font-black text-[#fb7185] mb-1" id="finalScoreP2">0</div>
+                    <div class="text-sm font-black text-rose-800 bg-rose-100 rounded-full px-2 py-1">🟡 NOBITA</div>
                 </div>
             </div>
 
-            <div class="flex justify-center mb-8 relative z-10" id="winnerIcon"></div>
-            <button onclick="resetGame()" class="relative z-10 w-full bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white font-black py-4 lg:py-5 px-6 rounded-2xl text-xl lg:text-2xl shadow-[0_8px_0_rgb(194,65,12)] transition-transform transform active:translate-y-2 active:shadow-none border-4 border-white">
+            <!-- Kalimat Pujian & Penyemangat -->
+            <div class="relative z-10 mb-6 flex flex-col gap-3">
+                <div class="bg-green-100 border-2 border-green-300 rounded-2xl p-3 shadow-sm">
+                    <span class="block text-green-800 font-bold text-sm mb-1 uppercase tracking-wider">🌟 Pujian Juara</span>
+                    <p id="praiseText" class="text-green-700 font-black text-lg">Hebat sekali! Kalian pemenangnya!</p>
+                </div>
+                <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-3 shadow-sm">
+                    <span class="block text-orange-800 font-bold text-sm mb-1 uppercase tracking-wider">💪 Semangat Terus</span>
+                    <p id="encourageText" class="text-orange-700 font-black text-lg">Jangan menyerah! Coba lagi pasti bisa!</p>
+                </div>
+            </div>
+
+            <div class="flex justify-center mb-6 relative z-10 hidden" id="winnerIcon"></div>
+            
+            <button onclick="resetGame()" class="btn-3d relative z-10 w-full bg-[#facc15] border-b-[8px] border-[#ca8a04] text-white font-nunito font-black py-4 px-6 rounded-full text-2xl border-[4px] border-white hover:bg-[#fde047]">
                 🔄 MAIN LAGI YUK!
             </button>
         </div>
     </div>
 
+    <!-- JAVASCRIPT -->
     <script>
-        // Data Soal
         const questionsData = [
-            { q: "-2 + (-3) - (-4)", a: -1 },
-            { q: "3 - (-2) + (-1)", a: 4 },
-            { q: "4 - 3 - (-2)", a: 3 },
-            { q: "-3 + (-2) - 2", a: -7 },
-            { q: "-2 + (-5) - 1", a: -8 },
-            { q: "3 - 4 - (-2)", a: 1 },
-            { q: "3 - 4 + (-3) - (-2)", a: -2 },
-            { q: "-2 - 4 + 3", a: -3 },
-            { q: "4 - 2 + (-3)", a: -1 },
-            { q: "5 - (-1) + 4", a: 10 }
+            { q: "-2 + (-3) - (-4)", a: -1 }, { q: "3 - (-2) + (-1)", a: 4 }, { q: "4 - 3 - (-2)", a: 3 }, { q: "-3 + (-2) - 2", a: -7 }, { q: "-2 + (-5) - 1", a: -8 },
+            { q: "3 - 4 - (-2)", a: 1 }, { q: "3 - 4 + (-3) - (-2)", a: -2 }, { q: "-2 - 4 + 3", a: -3 }, { q: "4 - 2 + (-3)", a: -1 }, { q: "5 - (-1) + 4", a: 10 }
         ];
 
-        // Game State
         const WIN_SCORE = 5; 
-        const GAME_DURATION = 120; // 2 Menit
-        let state = {
-            p1: { input: "", qIndex: 0, score: 0 },
-            p2: { input: "", qIndex: 0, score: 0 },
-            ropeOffset: 0, 
-            isGameOver: true, 
-            timeLeft: GAME_DURATION,
-            timerInterval: null
-        };
+        const GAME_DURATION = 120;
+        let state = { p1: { input: "", qIndex: 0, score: 0 }, p2: { input: "", qIndex: 0, score: 0 }, ropeOffset: 0, isGameOver: true, timeLeft: GAME_DURATION, timerInterval: null };
 
-        // DOM Elements
         const ui = {
-            p1: {
-                display: document.getElementById('p1-display'),
-                question: document.getElementById('p1-question'),
-                qNum: document.getElementById('p1-q-num'),
-                feedback: document.getElementById('p1-feedback'),
-                bar: document.getElementById('p1-bar'),
-                score: document.getElementById('p1-score-display')
-            },
-            p2: {
-                display: document.getElementById('p2-display'),
-                question: document.getElementById('p2-question'),
-                qNum: document.getElementById('p2-q-num'),
-                feedback: document.getElementById('p2-feedback'),
-                bar: document.getElementById('p2-bar'),
-                score: document.getElementById('p2-score-display')
-            },
-            timer: document.getElementById('timerDisplay')
+            p1: { display: document.getElementById('p1-display'), question: document.getElementById('p1-question'), qNum: document.getElementById('p1-q-num'), feedback: document.getElementById('p1-feedback'), score: document.getElementById('p1-score-display'), centerScore: document.getElementById('center-p1-score') },
+            p2: { display: document.getElementById('p2-display'), question: document.getElementById('p2-question'), qNum: document.getElementById('p2-q-num'), feedback: document.getElementById('p2-feedback'), score: document.getElementById('p2-score-display'), centerScore: document.getElementById('center-p2-score') },
+            timer: document.getElementById('timerDisplay'),
+            timerBox: document.getElementById('timerBox')
         };
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        let targetRopeOffset = 0; 
-        let visualOffset = 0;
-
-        // --- SISTEM SUARA (AUDIO TONE.JS) LEBIH LUCU & MUSIK LATAR ---
-        let synth, polySynth, errorSynth, bgmLoop;
-        let audioInitialized = false;
+        let targetRopeOffset = 0; let visualOffset = 0;
+        let synth, polySynth, errorSynth, bgmLoop; let audioInitialized = false;
 
         function initAudio() {
             if (audioInitialized) return;
-            // Synthesizer bouncy
-            synth = new Tone.FMSynth().toDestination();
-            synth.volume.value = -5;
-            
-            // PolySynth ceria
-            polySynth = new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: "triangle" },
-                envelope: { attack: 0.05, decay: 0.1, sustain: 0.3, release: 1 }
-            }).toDestination();
-            polySynth.volume.value = -2;
-            
-            // Suara salah lucu
-            errorSynth = new Tone.MembraneSynth({
-                pitchDecay: 0.01,
-                octaves: 2,
-                oscillator: { type: "square" }
-            }).toDestination();
-            errorSynth.volume.value = -5;
-
-            // Background Music (Marimba Ceria)
-            const marimba = new Tone.Synth({
-                oscillator: { type: "sine" },
-                envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 }
-            }).toDestination();
-            marimba.volume.value = -12; 
-            
-            const melody = ["C4", "E4", "G4", "C5", "G4", "E4"];
-            let step = 0;
-            bgmLoop = new Tone.Loop((time) => {
-                marimba.triggerAttackRelease(melody[step % melody.length], "8n", time);
-                step++;
-            }, "8n");
-            Tone.Transport.bpm.value = 130; 
-
-            audioInitialized = true;
+            synth = new Tone.FMSynth().toDestination(); synth.volume.value = -5;
+            polySynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.05, decay: 0.1, sustain: 0.3, release: 1 } }).toDestination(); polySynth.volume.value = -2;
+            errorSynth = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 2, oscillator: { type: "square" } }).toDestination(); errorSynth.volume.value = -5;
+            const marimba = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 } }).toDestination(); marimba.volume.value = -12; 
+            const melody = ["C4", "E4", "G4", "C5", "G4", "E4"]; let step = 0;
+            bgmLoop = new Tone.Loop((time) => { marimba.triggerAttackRelease(melody[step % melody.length], "8n", time); step++; }, "8n");
+            Tone.Transport.bpm.value = 130; audioInitialized = true;
         }
 
         const soundEffects = {
-            countdown: () => { if(audioInitialized) synth.triggerAttackRelease("C5", "0.1"); },
-            go: () => { if(audioInitialized) synth.triggerAttackRelease("C6", "0.4"); },
-            correct: () => { if(audioInitialized) polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.3"); },
-            wrong: () => { if(audioInitialized) errorSynth.triggerAttackRelease("G2", "0.3"); },
-            win: () => { 
-                if(!audioInitialized) return;
-                const now = Tone.now();
-                polySynth.triggerAttackRelease(["C5", "E5", "G5"], "0.1", now);
-                polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.1", now + 0.15);
-                polySynth.triggerAttackRelease(["G5", "C6", "E6"], "0.4", now + 0.3);
-            }
+            countdown: () => { if(audioInitialized) synth.triggerAttackRelease("C5", "0.1"); }, go: () => { if(audioInitialized) synth.triggerAttackRelease("C6", "0.4"); }, correct: () => { if(audioInitialized) polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.3"); }, wrong: () => { if(audioInitialized) errorSynth.triggerAttackRelease("G2", "0.3"); },
+            win: () => { if(!audioInitialized) return; const now = Tone.now(); polySynth.triggerAttackRelease(["C5", "E5", "G5"], "0.1", now); polySynth.triggerAttackRelease(["E5", "G5", "C6"], "0.1", now + 0.15); polySynth.triggerAttackRelease(["G5", "C6", "E6"], "0.4", now + 0.3); }
         };
 
-        // --- FUNGSI SUARA (TEXT TO SPEECH) TEGAS ---
         function ucapkan(teks) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const msg = new SpeechSynthesisUtterance(teks);
-                msg.lang = 'id-ID';
-                msg.rate = 1.15; 
-                msg.pitch = 1.0;  
-                window.speechSynthesis.speak(msg);
+                window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(teks); msg.lang = 'id-ID'; msg.rate = 1.15; msg.pitch = 1.0; window.speechSynthesis.speak(msg);
             }
         }
 
-        // --- LOGIKA TIMER ---
         function formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0'); const s = (seconds % 60).toString().padStart(2, '0'); return `${m}:${s}`;
         }
 
         function updateTimerUI() {
             ui.timer.innerText = formatTime(state.timeLeft);
-            if (state.timeLeft <= 10 && state.timeLeft > 0) {
-                ui.timer.classList.add('pulse-timer');
-                ui.timer.style.color = '#ef4444';
-                soundEffects.countdown();
-            } else {
-                ui.timer.classList.remove('pulse-timer');
-                ui.timer.style.color = '#1e293b'; 
-            }
+            if (state.timeLeft <= 10 && state.timeLeft > 0) { ui.timerBox.classList.add('pulse-timer'); soundEffects.countdown(); } 
+            else { ui.timerBox.classList.remove('pulse-timer'); }
         }
 
         function startGameTimer() {
-            state.timeLeft = GAME_DURATION;
-            updateTimerUI();
-            
-            // Mulai musik latar jika game start
-            if (audioInitialized) {
-                Tone.Transport.start();
-                bgmLoop.start(0);
-            }
-
+            state.timeLeft = GAME_DURATION; updateTimerUI();
+            if (audioInitialized) { Tone.Transport.start(); bgmLoop.start(0); }
             state.timerInterval = setInterval(() => {
-                state.timeLeft--;
-                updateTimerUI();
-                if (state.timeLeft <= 0) {
-                    clearInterval(state.timerInterval);
-                    handleTimeUp();
-                }
+                state.timeLeft--; updateTimerUI();
+                if (state.timeLeft <= 0) { clearInterval(state.timerInterval); handleTimeUp(); }
             }, 1000);
         }
 
         function handleTimeUp() {
-            if (state.ropeOffset < 0) {
-                endGame("Tim Doraemon", "WAKTU HABIS!");
-            } else if (state.ropeOffset > 0) {
-                endGame("Tim Nobita", "WAKTU HABIS!");
-            } else {
-                if(state.p1.score > state.p2.score) endGame("Tim Doraemon", "WAKTU HABIS!");
-                else if(state.p2.score > state.p1.score) endGame("Tim Nobita", "WAKTU HABIS!");
-                else endGame("Seri", "WAKTU HABIS!");
-            }
+            if (state.ropeOffset < 0) endGame("Tim Doraemon", "WAKTU HABIS!");
+            else if (state.ropeOffset > 0) endGame("Tim Nobita", "WAKTU HABIS!");
+            else { if(state.p1.score > state.p2.score) endGame("Tim Doraemon", "WAKTU HABIS!"); else if(state.p2.score > state.p1.score) endGame("Tim Nobita", "WAKTU HABIS!"); else endGame("Seri", "WAKTU HABIS!"); }
         }
 
-        // --- LOGIKA HITUNGAN MUNDUR ---
         window.mulaiPersiapan = async function() {
             try {
                 if (!document.fullscreenElement) {
                     let fsPromise;
-                    if (document.documentElement.requestFullscreen) {
-                        fsPromise = document.documentElement.requestFullscreen();
-                    } else if (document.documentElement.webkitRequestFullscreen) {
-                        fsPromise = document.documentElement.webkitRequestFullscreen();
-                    } else if (document.documentElement.msRequestFullscreen) {
-                        fsPromise = document.documentElement.msRequestFullscreen();
-                    }
-                    if (fsPromise !== undefined && fsPromise.catch) {
-                        fsPromise.catch(err => console.warn("Pratinjau memblokir fullscreen, lanjut main."));
-                    }
+                    if (document.documentElement.requestFullscreen) fsPromise = document.documentElement.requestFullscreen();
+                    else if (document.documentElement.webkitRequestFullscreen) fsPromise = document.documentElement.webkitRequestFullscreen();
+                    if (fsPromise !== undefined && fsPromise.catch) fsPromise.catch(err => console.warn("Fullscreen diblokir"));
                 }
-            } catch (e) {
-                console.warn("Fullscreen error", e);
-            }
-
-            await Tone.start(); 
-            initAudio();
-            
+            } catch (e) { console.warn("Fullscreen error", e); }
+            await Tone.start(); initAudio();
             document.getElementById('startBtn').style.display = 'none';
-            const countdownEl = document.getElementById('countdownText');
-            countdownEl.classList.remove('hidden');
-            
-            let count = 3;
-            countdownEl.innerText = count;
-            countdownEl.classList.add('countdown-anim');
-            soundEffects.countdown();
-
+            const countdownEl = document.getElementById('countdownText'); countdownEl.classList.remove('hidden');
+            let count = 3; countdownEl.innerText = count; countdownEl.classList.add('countdown-anim'); soundEffects.countdown();
             const interval = setInterval(() => {
                 count--;
-                if (count > 0) {
-                    countdownEl.classList.remove('countdown-anim');
-                    void countdownEl.offsetWidth; 
-                    countdownEl.classList.add('countdown-anim');
-                    countdownEl.innerText = count;
-                    soundEffects.countdown();
-                } else if (count === 0) {
-                    countdownEl.classList.remove('countdown-anim');
-                    void countdownEl.offsetWidth; 
-                    countdownEl.classList.add('countdown-anim');
-                    countdownEl.innerText = "MULAI!";
-                    soundEffects.go();
-                } else {
-                    clearInterval(interval);
-                    document.getElementById('startOverlay').classList.add('opacity-0');
-                    setTimeout(() => {
-                        document.getElementById('startOverlay').classList.add('hidden');
-                        state.isGameOver = false; 
-                        startGameTimer(); 
-                    }, 500);
-                }
+                if (count > 0) { countdownEl.classList.remove('countdown-anim'); void countdownEl.offsetWidth; countdownEl.classList.add('countdown-anim'); countdownEl.innerText = count; soundEffects.countdown(); } 
+                else if (count === 0) { countdownEl.classList.remove('countdown-anim'); void countdownEl.offsetWidth; countdownEl.classList.add('countdown-anim'); countdownEl.innerText = "MULAI!"; soundEffects.go(); } 
+                else { clearInterval(interval); document.getElementById('startOverlay').classList.add('opacity-0'); setTimeout(() => { document.getElementById('startOverlay').classList.add('hidden'); state.isGameOver = false; startGameTimer(); }, 500); }
             }, 1000);
         };
 
-        function initUI() {
-            updatePlayerUI('p1');
-            updatePlayerUI('p2');
-            updateBars();
-            ui.timer.innerText = "02:00";
-        }
+        function initUI() { updatePlayerUI('p1'); updatePlayerUI('p2'); ui.timer.innerText = "02:00"; }
 
         function updatePlayerUI(player) {
-            const playerData = state[player];
-            ui[player].display.innerText = playerData.input || "_";
-            
+            const playerData = state[player]; ui[player].display.innerText = playerData.input || "_";
             const safeIndex = playerData.qIndex % questionsData.length;
-            ui[player].question.innerText = questionsData[safeIndex].q + " = ?";
-            ui[player].qNum.innerText = playerData.qIndex + 1;
-            ui[player].score.innerText = playerData.score;
+            ui[player].question.innerText = questionsData[safeIndex].q + " = ?"; ui[player].qNum.innerText = playerData.qIndex + 1; 
+            ui[player].score.innerText = playerData.score; ui[player].centerScore.innerText = playerData.score;
         }
 
         window.input = function(player, val) {
-            if (state.isGameOver) return;
-            let current = state[player].input;
-            
-            if (val === 'C') {
-                state[player].input = "";
-            } else if (val === '+/-') {
-                if (current === "") state[player].input = "-";
-                else if (current.startsWith("-")) state[player].input = current.substring(1);
-                else state[player].input = "-" + current;
-            } else {
-                if (current === "0" && val !== "0") state[player].input = val;
-                else if (current === "-0") state[player].input = "-" + val;
-                else if (current.length < 5) state[player].input += val;
-            }
+            if (state.isGameOver) return; let current = state[player].input;
+            if (val === 'C') state[player].input = "";
+            else if (val === '+/-') { if (current === "") state[player].input = "-"; else if (current.startsWith("-")) state[player].input = current.substring(1); else state[player].input = "-" + current; } 
+            else { if (current === "0" && val !== "0") state[player].input = val; else if (current === "-0") state[player].input = "-" + val; else if (current.length < 5) state[player].input += val; }
             updatePlayerUI(player);
         };
 
         window.submitAnswer = function(player) {
-            if (state.isGameOver) return;
-            
-            const playerData = state[player];
+            if (state.isGameOver) return; const playerData = state[player];
             if (playerData.input === "" || playerData.input === "-") return;
-
-            const safeIndex = playerData.qIndex % questionsData.length;
-            const correctAnswer = questionsData[safeIndex].a;
-            const userAnswer = parseInt(playerData.input);
-            const teamName = player === 'p1' ? 'Tim Doraemon' : 'Tim Nobita';
-
+            const safeIndex = playerData.qIndex % questionsData.length; const correctAnswer = questionsData[safeIndex].a; const userAnswer = parseInt(playerData.input); const teamName = player === 'p1' ? 'Tim Doraemon' : 'Tim Nobita';
+            
             if (userAnswer === correctAnswer) {
-                // Benar
-                soundEffects.correct();
-                showFeedback(player, true);
-                
-                state[player].score += 10; // 10 Poin per soal
+                // MENGEMBALIKAN SUARA JAWABAN BENAR
+                soundEffects.correct(); showFeedback(player, true); state[player].score += 10; 
                 ucapkan(`Tepat sekali! ${teamName} benar! Poin menjadi ${state[player].score}!`);
-
-                // Soal Ganti bersama
-                state.p1.qIndex++;
-                state.p2.qIndex++;
                 
-                state.p1.input = "";
-                state.p2.input = "";
-
-                if (player === 'p1') state.ropeOffset -= 1; 
-                else state.ropeOffset += 1;
-                
-                targetRopeOffset = state.ropeOffset;
-                updateBars();
-                updatePlayerUI('p1');
-                updatePlayerUI('p2');
-                checkWin();
-
+                state.p1.qIndex++; state.p2.qIndex++; state.p1.input = ""; state.p2.input = "";
+                if (player === 'p1') state.ropeOffset -= 1; else state.ropeOffset += 1;
+                targetRopeOffset = state.ropeOffset; updatePlayerUI('p1'); updatePlayerUI('p2'); checkWin();
             } else {
-                // Salah
-                soundEffects.wrong();
-                showFeedback(player, false);
-                playerData.input = "";
-                updatePlayerUI(player);
+                // MENGEMBALIKAN SUARA JAWABAN SALAH
+                soundEffects.wrong(); showFeedback(player, false); playerData.input = ""; updatePlayerUI(player);
                 ucapkan(`Sayang sekali, ${teamName} salah! Ayo coba lagi!`);
                 
-                ui[player].display.parentElement.classList.add('shake');
-                setTimeout(() => {
-                    ui[player].display.parentElement.classList.remove('shake');
-                }, 500);
+                ui[player].display.parentElement.classList.add('shake'); setTimeout(() => { ui[player].display.parentElement.classList.remove('shake'); }, 500);
             }
         };
 
         function showFeedback(player, isCorrect) {
-            const fb = ui[player].feedback;
-            const textEl = document.getElementById(`${player}-fb-text`);
-            const iconEl = document.getElementById(`${player}-fb-icon`);
-            
-            if (isCorrect) {
-                textEl.innerText = "HEBAT!";
-                iconEl.innerText = "🌟";
-                fb.style.backgroundColor = player === 'p1' ? 'rgba(59, 130, 246, 0.95)' : 'rgba(239, 68, 68, 0.95)';
-            } else {
-                textEl.innerText = "YAH SALAH~";
-                iconEl.innerText = "💦";
-                fb.style.backgroundColor = 'rgba(100, 116, 139, 0.95)';
-            }
-            
-            fb.style.opacity = '1';
-            fb.style.transform = 'scale(1.1)';
-            setTimeout(() => fb.style.transform = 'scale(1)', 100);
-
-            setTimeout(() => {
-                fb.style.opacity = '0';
-            }, 800);
-        }
-
-        function updateBars() {
-            let p1Percent = 50 + ((state.ropeOffset * -1) / WIN_SCORE) * 50;
-            let p2Percent = 50 + (state.ropeOffset / WIN_SCORE) * 50;
-            p1Percent = Math.max(0, Math.min(100, p1Percent));
-            p2Percent = Math.max(0, Math.min(100, p2Percent));
-            ui.p1.bar.style.width = p1Percent + "%";
-            ui.p2.bar.style.width = p2Percent + "%";
+            const fb = ui[player].feedback; const textEl = document.getElementById(`${player}-fb-text`); const iconEl = document.getElementById(`${player}-fb-icon`);
+            if (isCorrect) { textEl.innerText = "HEBAT!"; iconEl.innerText = "🌟"; fb.style.backgroundColor = player === 'p1' ? 'rgba(59, 130, 246, 0.95)' : 'rgba(251, 113, 133, 0.95)'; } 
+            else { textEl.innerText = "SALAH~"; iconEl.innerText = "💦"; fb.style.backgroundColor = 'rgba(100, 116, 139, 0.95)'; }
+            fb.style.opacity = '1'; fb.style.transform = 'scale(1.1)'; setTimeout(() => fb.style.transform = 'scale(1)', 100); setTimeout(() => { fb.style.opacity = '0'; }, 800);
         }
 
         function checkWin() {
-            if (state.ropeOffset <= -WIN_SCORE) {
-                endGame("Tim Doraemon", "MENANG TELAK!");
-            } else if (state.ropeOffset >= WIN_SCORE) {
-                endGame("Tim Nobita", "MENANG TELAK!");
-            }
+            if (state.ropeOffset <= -WIN_SCORE) endGame("Tim Doraemon", "MENANG TELAK!"); else if (state.ropeOffset >= WIN_SCORE) endGame("Tim Nobita", "MENANG TELAK!");
         }
 
         function endGame(winnerName, titleText = "PERMAINAN SELESAI!") {
-            if(state.isGameOver) return; 
-            state.isGameOver = true;
-            clearInterval(state.timerInterval);
+            if(state.isGameOver) return; state.isGameOver = true; clearInterval(state.timerInterval);
+            if (audioInitialized) { Tone.Transport.stop(); if (bgmLoop) bgmLoop.stop(); } soundEffects.win(); 
             
-            if (audioInitialized) {
-                Tone.Transport.stop();
-                if (bgmLoop) bgmLoop.stop();
-            }
-            soundEffects.win(); 
+            // Variabel penyimpan teks pengumuman agar dapat diucapkan
+            let teksBicara = "Waktu habis! ";
             
             setTimeout(() => {
-                const modal = document.getElementById('gameOverModal');
-                const winnerText = document.getElementById('winnerText');
-                const winnerSubText = document.getElementById('winnerSubText');
-                const winnerIcon = document.getElementById('winnerIcon');
+                const modal = document.getElementById('gameOverModal'); const winnerText = document.getElementById('winnerText'); const winnerSubText = document.getElementById('winnerSubText'); 
                 const modalContent = document.getElementById('modalContent');
+                const praiseEl = document.getElementById('praiseText'); const encourageEl = document.getElementById('encourageText');
                 
-                document.getElementById('finalScoreP1').innerText = state.p1.score;
-                document.getElementById('finalScoreP2').innerText = state.p2.score;
-
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
+                document.getElementById('finalScoreP1').innerText = state.p1.score; document.getElementById('finalScoreP2').innerText = state.p2.score;
+                modal.classList.remove('hidden'); modal.classList.add('flex'); winnerText.innerText = titleText;
                 
-                winnerText.innerText = titleText;
-                
-                if (winnerName === "Seri") {
-                    winnerSubText.innerText = "Wah, kekuatannya seimbang! SERI! 🤝";
-                    winnerIcon.innerHTML = `<div class="text-7xl animate-bounce drop-shadow-md">🤝</div>`;
-                } else {
-                    const isBlue = winnerName === 'Tim Doraemon';
-                    winnerSubText.innerText = `Selamat! ${isBlue ? '🔵 Tim Doraemon' : '🟡 Tim Nobita'} Menang!`;
-                    winnerSubText.className = `text-2xl font-black mb-6 ${isBlue ? 'text-blue-600' : 'text-red-600'}`;
-                    winnerIcon.innerHTML = `<div class="text-[100px] animate-bounce drop-shadow-xl">${isBlue ? '🏆🔵' : '🏆🟡'}</div>`;
+                // Set Pujian, Penyemangat, dan Kalimat Bicara
+                if (winnerName === "Seri") { 
+                    winnerSubText.innerText = "Wah, kekuatannya seimbang! SERI! 🤝"; 
+                    praiseEl.innerText = "Kalian berdua sama-sama tangguh dan jenius matematika! Skor kalian seimbang! 🌟";
+                    encourageEl.innerText = "Tetap semangat belajar! Pertandingan selanjutnya pasti lebih seru! 📚";
+                    teksBicara += "Wah, kekuatannya seimbang! Seri! Kalian berdua sama-sama tangguh dan jenius matematika! Skor kalian seimbang! Tetap semangat belajar! Pertandingan selanjutnya pasti lebih seru!";
+                } else { 
+                    const isBlue = winnerName === 'Tim Doraemon'; 
+                    winnerSubText.innerText = `Selamat! ${isBlue ? 'Tim Doraemon' : 'Tim Nobita'} Menang!`; 
+                    winnerSubText.className = `text-2xl font-black mb-4 font-nunito ${isBlue ? 'text-[#3b82f6]' : 'text-[#fb7185]'}`; 
+                    
+                    if(isBlue){
+                        praiseEl.innerText = "Luar biasa Tim Doraemon! Strategi dan hitungan kalian sangat cepat dan akurat! Ahli matematika sejati! 🏆✨";
+                        encourageEl.innerText = "Jangan berkecil hati Tim Nobita! Kalian sudah berjuang keras. Terus berlatih berhitung, kemenangan menanti kalian di lain waktu! 💪🚀";
+                        teksBicara += "Selamat! Tim Doraemon Menang! Luar biasa Tim Doraemon! Strategi dan hitungan kalian sangat cepat dan akurat, Ahli matematika sejati! Jangan berkecil hati Tim Nobita! Kalian sudah berjuang keras. Terus berlatih berhitung, kemenangan menanti kalian di lain waktu!";
+                    } else {
+                        praiseEl.innerText = "Keren banget Tim Nobita! Fokus dan kecepatan kalian tidak tertandingi hari ini! Juara matematika! 🏆✨";
+                        encourageEl.innerText = "Tetap semangat Tim Doraemon! Sedikit lagi kalian menang. Latih terus insting matematika kalian, pantang menyerah! 💪🚀";
+                        teksBicara += "Selamat! Tim Nobita Menang! Keren banget Tim Nobita! Fokus dan kecepatan kalian tidak tertandingi hari ini! Juara matematika! Tetap semangat Tim Doraemon! Sedikit lagi kalian menang. Latih terus insting matematika kalian, pantang menyerah!";
+                    }
                 }
-
-                setTimeout(() => {
-                    modalContent.classList.remove('scale-95');
-                    modalContent.classList.add('scale-100');
-                    createConfetti();
-                }, 50);
-
+                
+                // PANGGIL SUARA UNTUK PENGUMUMAN HASIL AKHIR
+                ucapkan(teksBicara);
+                
+                setTimeout(() => { modalContent.classList.remove('scale-95'); modalContent.classList.add('scale-100'); createConfetti(); }, 50);
             }, 500);
         }
 
         function createConfetti() {
-            const container = document.getElementById('confetti-container');
-            container.innerHTML = '';
-            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#38bdf8'];
+            const container = document.getElementById('confetti-container'); container.innerHTML = ''; const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#38bdf8'];
             for(let i=0; i<60; i++) {
-                const conf = document.createElement('div');
-                conf.style.position = 'absolute';
-                conf.style.width = Math.random() * 12 + 6 + 'px';
-                conf.style.height = Math.random() * 12 + 6 + 'px';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.left = Math.random() * 100 + '%';
-                conf.style.top = '-10%';
-                conf.style.opacity = Math.random() + 0.5;
-                conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-                const duration = Math.random() * 2 + 2;
-                conf.animate([
-                    { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
-                    { transform: `translate3d(${Math.random()*300 - 150}px, 600px, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
-                ], { duration: duration * 1000, easing: 'cubic-bezier(.37,0,.63,1)', fill: 'forwards', delay: Math.random() * 500 });
+                const conf = document.createElement('div'); conf.style.position = 'absolute'; conf.style.width = Math.random() * 12 + 6 + 'px'; conf.style.height = Math.random() * 12 + 6 + 'px'; conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; conf.style.left = Math.random() * 100 + '%'; conf.style.top = '-10%'; conf.style.opacity = Math.random() + 0.5; conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                const duration = Math.random() * 2 + 2; conf.animate([ { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 }, { transform: `translate3d(${Math.random()*300 - 150}px, 600px, 0) rotate(${Math.random()*720}deg)`, opacity: 0 } ], { duration: duration * 1000, easing: 'cubic-bezier(.37,0,.63,1)', fill: 'forwards', delay: Math.random() * 500 });
                 container.appendChild(conf);
             }
         }
 
         window.resetGame = function() {
-            clearInterval(state.timerInterval);
-            state = { p1: { input: "", qIndex: 0, score: 0 }, p2: { input: "", qIndex: 0, score: 0 }, ropeOffset: 0, isGameOver: true, timeLeft: GAME_DURATION, timerInterval: null };
-            targetRopeOffset = 0; visualOffset = 0;
-
-            const modal = document.getElementById('gameOverModal');
-            const modalContent = document.getElementById('modalContent');
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
+            clearInterval(state.timerInterval); state = { p1: { input: "", qIndex: 0, score: 0 }, p2: { input: "", qIndex: 0, score: 0 }, ropeOffset: 0, isGameOver: true, timeLeft: GAME_DURATION, timerInterval: null }; targetRopeOffset = 0; visualOffset = 0;
+            const modal = document.getElementById('gameOverModal'); const modalContent = document.getElementById('modalContent'); modalContent.classList.remove('scale-100'); modalContent.classList.add('scale-95');
             
-            setTimeout(() => {
-                modal.classList.add('hidden'); modal.classList.remove('flex');
-                initUI();
-                const startOverlay = document.getElementById('startOverlay');
-                startOverlay.classList.remove('hidden', 'opacity-0');
-                document.getElementById('startBtn').style.display = 'inline-block';
-                document.getElementById('countdownText').classList.add('hidden');
-            }, 300);
+            // Hentikan suara jika masih ada sisa
+            if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); initUI(); const startOverlay = document.getElementById('startOverlay'); startOverlay.classList.remove('hidden', 'opacity-0'); document.getElementById('startBtn').style.display = 'inline-block'; document.getElementById('countdownText').classList.add('hidden'); }, 300);
         };
 
         window.toggleFullScreen = function() {
             try {
                 if (!document.fullscreenElement) {
-                    let fsPromise;
-                    if (document.documentElement.requestFullscreen) fsPromise = document.documentElement.requestFullscreen();
-                    else if (document.documentElement.mozRequestFullScreen) fsPromise = document.documentElement.mozRequestFullScreen();
-                    else if (document.documentElement.webkitRequestFullscreen) fsPromise = document.documentElement.webkitRequestFullscreen();
-                    else if (document.documentElement.msRequestFullscreen) fsPromise = document.documentElement.msRequestFullscreen();
+                    let fsPromise; if (document.documentElement.requestFullscreen) fsPromise = document.documentElement.requestFullscreen(); else if (document.documentElement.mozRequestFullScreen) fsPromise = document.documentElement.mozRequestFullScreen(); else if (document.documentElement.webkitRequestFullscreen) fsPromise = document.documentElement.webkitRequestFullscreen(); else if (document.documentElement.msRequestFullscreen) fsPromise = document.documentElement.msRequestFullscreen();
                     if (fsPromise !== undefined && fsPromise.catch) fsPromise.catch(err => console.warn("Fullscreen error:", err));
                 } else {
-                    if (document.exitFullscreen) document.exitFullscreen();
-                    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-                    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                    else if (document.msExitFullscreen) document.msExitFullscreen();
+                    if (document.exitFullscreen) document.exitFullscreen(); else if (document.mozCancelFullScreen) document.mozCancelFullScreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); else if (document.msExitFullscreen) document.msExitFullscreen();
                 }
             } catch (error) { console.warn("Fitur fullscreen tidak didukung.", error); }
         };
 
+        // --- DRAWING CANVAS ---
         function drawDoraemon(ctx, x, y, isFacingRight) {
-            ctx.save(); ctx.translate(x, y);
-            const bounce = Math.sin(Date.now() / 100) * 3;
-            const lean = isFacingRight ? -0.2 : 0.2;
-            ctx.rotate(lean); ctx.translate(0, bounce);
-            const dir = isFacingRight ? 1 : -1;
-
-            // Badan
-            ctx.fillStyle = "#0ea5e9";
-            ctx.beginPath(); ctx.roundRect(-15, -15, 30, 25, 12); ctx.fill();
-            // Perut Putih
-            ctx.fillStyle = "white";
-            ctx.beginPath(); ctx.arc(dir * 5, -5, 12, 0, Math.PI*2); ctx.fill();
-            // Kantong
-            ctx.strokeStyle = "#334155"; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.arc(dir * 5, -5, 8, 0, Math.PI); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(dir*5 - 8, -5); ctx.lineTo(dir*5 + 8, -5); ctx.stroke();
-            // Kalung & Lonceng
-            ctx.fillStyle = "#ef4444";
-            ctx.beginPath(); ctx.roundRect(-14, -22, 28, 6, 3); ctx.fill();
-            ctx.fillStyle = "#eab308";
-            ctx.beginPath(); ctx.arc(dir * 5, -18, 5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            
-            // Kepala
-            ctx.fillStyle = "#0ea5e9";
-            ctx.beginPath(); ctx.arc(dir * 5, -42, 24, 0, Math.PI * 2); ctx.fill();
-            // Wajah Putih
-            ctx.fillStyle = "white";
-            ctx.beginPath(); ctx.arc(dir * 5, -38, 19, 0, Math.PI * 2); ctx.fill();
-            // Mata Berjuang
-            ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.ellipse(dir * -2, -48, 5, 7, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            ctx.beginPath(); ctx.ellipse(dir * 12, -48, 5, 7, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(dir*-5, -50); ctx.lineTo(dir*1, -46); ctx.moveTo(dir*9, -50); ctx.lineTo(dir*15, -46); ctx.stroke();
-            
-            // Hidung Merah
-            ctx.fillStyle = "#ef4444";
-            ctx.beginPath(); ctx.arc(dir * 10, -40, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            // Kumis
-            ctx.beginPath(); ctx.moveTo(dir*4, -42); ctx.lineTo(dir*-5, -38); ctx.moveTo(dir*5, -38); ctx.lineTo(dir*-5, -35); ctx.moveTo(dir*6, -32); ctx.lineTo(dir*-3, -32); ctx.stroke();
-            // Mulut Teriak
-            ctx.fillStyle = "#ef4444";
-            ctx.beginPath(); ctx.arc(dir * 8, -30, 6, 0, Math.PI, false); ctx.fill();
-            
-            // Tangan
-            ctx.strokeStyle = "#0ea5e9"; ctx.lineWidth = 10; ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(dir * -10, -10); ctx.lineTo(dir * 20, -5); ctx.stroke();
-            ctx.fillStyle = "white"; ctx.strokeStyle = "#334155"; ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.arc(dir * 25, -5, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            // Kaki
-            ctx.fillStyle = "white";
-            ctx.beginPath(); ctx.ellipse(-8, 12, 7, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            ctx.beginPath(); ctx.ellipse(8, 12, 7, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-
-            ctx.restore();
+            ctx.save(); ctx.translate(x, y); const bounce = Math.sin(Date.now() / 150) * 3; const lean = isFacingRight ? -0.1 : 0.1; ctx.rotate(lean); ctx.translate(0, bounce); const dir = isFacingRight ? 1 : -1;
+            ctx.fillStyle = "#3b82f6"; ctx.beginPath(); ctx.roundRect(-15, -15, 30, 25, 12); ctx.fill(); ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(dir * 5, -5, 12, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(dir * 5, -5, 8, 0, Math.PI); ctx.stroke(); ctx.beginPath(); ctx.moveTo(dir*5 - 8, -5); ctx.lineTo(dir*5 + 8, -5); ctx.stroke(); ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.roundRect(-14, -22, 28, 6, 3); ctx.fill(); ctx.fillStyle = "#eab308"; ctx.beginPath(); ctx.arc(dir * 5, -18, 5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "#3b82f6"; ctx.beginPath(); ctx.arc(dir * 5, -42, 24, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(dir * 5, -38, 19, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "white"; ctx.strokeStyle = "black"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(dir * -2, -48, 5, 7, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(dir * 12, -48, 5, 7, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(dir*-5, -50); ctx.lineTo(dir*1, -46); ctx.moveTo(dir*9, -50); ctx.lineTo(dir*15, -46); ctx.stroke();
+            ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.arc(dir * 10, -40, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(dir*4, -42); ctx.lineTo(dir*-5, -38); ctx.moveTo(dir*5, -38); ctx.lineTo(dir*-5, -35); ctx.moveTo(dir*6, -32); ctx.lineTo(dir*-3, -32); ctx.stroke(); ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.arc(dir * 8, -30, 6, 0, Math.PI, false); ctx.fill();
+            ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 10; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(dir * -10, -10); ctx.lineTo(dir * 20, -5); ctx.stroke(); ctx.fillStyle = "white"; ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(dir * 25, -5, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle = "white"; ctx.beginPath(); ctx.ellipse(-8, 12, 7, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(8, 12, 7, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
         function drawNobita(ctx, x, y, isFacingRight) {
-            ctx.save(); ctx.translate(x, y);
-            const bounce = Math.sin(Date.now() / 100) * 3;
-            const lean = isFacingRight ? -0.2 : 0.2;
-            ctx.rotate(lean); ctx.translate(0, bounce);
-            const dir = isFacingRight ? 1 : -1;
-            const skinColor = "#fcd34d";
-
-            // Baju Kuning
-            ctx.fillStyle = "#facc15";
-            ctx.beginPath(); ctx.roundRect(-12, -15, 24, 22, 5); ctx.fill();
-            // Kerah
-            ctx.fillStyle = "white";
-            ctx.beginPath(); ctx.moveTo(dir*6, -15); ctx.lineTo(dir*0, -15); ctx.lineTo(dir*0, -5); ctx.fill();
-            // Celana Biru Tua
-            ctx.fillStyle = "#1e3a8a";
-            ctx.beginPath(); ctx.roundRect(-13, 5, 11, 10, 2); ctx.fill();
-            ctx.beginPath(); ctx.roundRect(2, 5, 11, 10, 2); ctx.fill();
-            
-            // Kepala
-            ctx.fillStyle = skinColor;
-            ctx.beginPath(); ctx.arc(dir * 2, -38, 20, 0, Math.PI * 2); ctx.fill();
-            // Rambut Hitam Nobita
-            ctx.fillStyle = "#1e293b";
-            ctx.beginPath(); ctx.arc(dir * 2, -40, 21, Math.PI, 0); ctx.lineTo(dir * 20, -35); ctx.lineTo(dir * 2, -45); ctx.lineTo(dir * -18, -35); ctx.fill();
-            // Kacamata Bulat
-            ctx.strokeStyle = "#334155"; ctx.lineWidth = 2; ctx.fillStyle = "rgba(255,255,255,0.9)";
-            ctx.beginPath(); ctx.arc(dir * 12, -38, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            ctx.beginPath(); ctx.arc(dir * -2, -38, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(dir*5, -38); ctx.lineTo(dir*5, -38); ctx.stroke();
-            // Mata Berjuang > <
-            ctx.beginPath(); ctx.moveTo(dir*10, -40); ctx.lineTo(dir*14, -36); ctx.moveTo(dir*14, -40); ctx.lineTo(dir*10, -36); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(dir*-4, -40); ctx.lineTo(dir*0, -36); ctx.moveTo(dir*0, -40); ctx.lineTo(dir*-4, -36); ctx.stroke();
-            // Mulut Berjuang
-            ctx.fillStyle = "white";
-            ctx.beginPath(); ctx.roundRect(dir * -4, -26, 8, 4, 2); ctx.fill(); ctx.stroke();
-            // Keringat
-            ctx.fillStyle = "#bae6fd";
-            ctx.beginPath(); ctx.arc(dir * -12, -48, 3, 0, Math.PI*2); ctx.fill();
-            
-            // Tangan
-            ctx.strokeStyle = skinColor; ctx.lineWidth = 8; ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(dir * -10, -5); ctx.lineTo(dir * 20, 0); ctx.stroke();
-            // Sepatu Biru Muda
-            ctx.fillStyle = "#38bdf8";
-            ctx.beginPath(); ctx.roundRect(-15, 13, 13, 6, 3); ctx.fill();
-            ctx.beginPath(); ctx.roundRect(2, 13, 13, 6, 3); ctx.fill();
-
-            ctx.restore();
+            ctx.save(); ctx.translate(x, y); const bounce = Math.sin(Date.now() / 150) * 3; const lean = isFacingRight ? -0.1 : 0.1; ctx.rotate(lean); ctx.translate(0, bounce); const dir = isFacingRight ? 1 : -1; const skinColor = "#fcd34d";
+            ctx.fillStyle = "#facc15"; ctx.beginPath(); ctx.roundRect(-12, -15, 24, 22, 5); ctx.fill(); ctx.fillStyle = "white"; ctx.beginPath(); ctx.moveTo(dir*6, -15); ctx.lineTo(dir*0, -15); ctx.lineTo(dir*0, -5); ctx.fill(); ctx.fillStyle = "#2563eb"; ctx.beginPath(); ctx.roundRect(-13, 5, 11, 10, 2); ctx.fill(); ctx.beginPath(); ctx.roundRect(2, 5, 11, 10, 2); ctx.fill();
+            ctx.fillStyle = skinColor; ctx.beginPath(); ctx.arc(dir * 2, -38, 20, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#1e293b"; ctx.beginPath(); ctx.arc(dir * 2, -40, 21, Math.PI, 0); ctx.lineTo(dir * 20, -35); ctx.lineTo(dir * 2, -45); ctx.lineTo(dir * -18, -35); ctx.fill(); ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 2; ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(dir * 12, -38, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(dir * -2, -38, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(dir*5, -38); ctx.lineTo(dir*5, -38); ctx.stroke(); ctx.fillStyle="#1e293b"; ctx.beginPath(); ctx.arc(dir*12, -38, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(dir*-2, -38, 2, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = "white"; ctx.beginPath(); ctx.roundRect(dir * -4, -26, 8, 4, 2); ctx.fill(); ctx.stroke(); 
+            ctx.strokeStyle = skinColor; ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(dir * -10, -5); ctx.lineTo(dir * 20, 0); ctx.stroke(); ctx.fillStyle = "#38bdf8"; ctx.beginPath(); ctx.roundRect(-15, 13, 13, 6, 3); ctx.fill(); ctx.beginPath(); ctx.roundRect(2, 13, 13, 6, 3); ctx.fill(); ctx.restore();
         }
 
-        let clouds = [{x: 100, y: 50, speed: 0.2, scale: 1}, {x: 400, y: 80, speed: 0.15, scale: 1.2}, {x: 700, y: 40, speed: 0.25, scale: 0.8}];
+        let clouds = [{x: 100, y: 80, speed: 0.3, scale: 1}, {x: 600, y: 120, speed: 0.2, scale: 1.3}];
 
         function drawBackground() {
-            ctx.fillStyle = "#4ade80"; 
-            ctx.beginPath(); ctx.ellipse(canvas.width/2, canvas.height, canvas.width*0.8, 140, 0, 0, Math.PI*2); ctx.fill();
+            // Bukit Rumput
+            ctx.fillStyle = "#86efac"; ctx.beginPath(); ctx.ellipse(canvas.width/2, canvas.height + 50, canvas.width*0.7, 200, 0, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#4ade80"; ctx.beginPath(); ctx.ellipse(canvas.width/2, canvas.height + 80, canvas.width*0.8, 200, 0, 0, Math.PI*2); ctx.fill();
             
-            // Matahari
-            ctx.fillStyle = "#fde047";
-            ctx.beginPath(); ctx.arc(canvas.width - 80, 80, 40, 0, Math.PI*2); ctx.fill();
-            ctx.strokeStyle = "#facc15"; ctx.lineWidth = 4;
-            for(let i=0; i<8; i++) {
-                let angle = (i/8) * Math.PI*2 + (Date.now()/2000);
-                ctx.beginPath(); ctx.moveTo(canvas.width - 80 + Math.cos(angle)*45, 80 + Math.sin(angle)*45); ctx.lineTo(canvas.width - 80 + Math.cos(angle)*60, 80 + Math.sin(angle)*60); ctx.stroke();
-            }
+            // Matahari Tersenyum
+            ctx.save(); ctx.translate(canvas.width - 120, 100);
+            ctx.fillStyle = "#fde047"; ctx.beginPath(); ctx.arc(0, 0, 45, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = "#facc15"; ctx.lineWidth = 5; ctx.lineCap="round";
+            for(let i=0; i<8; i++) { let angle = (i/8) * Math.PI*2 + (Date.now()/3000); ctx.beginPath(); ctx.moveTo(Math.cos(angle)*55, Math.sin(angle)*55); ctx.lineTo(Math.cos(angle)*75, Math.sin(angle)*75); ctx.stroke(); }
+            // Muka Matahari
+            ctx.fillStyle="#b45309"; ctx.beginPath(); ctx.arc(-15, -5, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15, -5, 4, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, 10, 8, 0, Math.PI, false); ctx.stroke();
+            ctx.fillStyle="#fca5a5"; ctx.beginPath(); ctx.arc(-22, 5, 5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(22, 5, 5, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
 
             // Awan
-            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-            clouds.forEach(c => {
-                c.x -= c.speed; if(c.x < -100) c.x = canvas.width + 100;
-                ctx.save(); ctx.translate(c.x, c.y); ctx.scale(c.scale, c.scale);
-                ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI*2); ctx.arc(15, -10, 25, 0, Math.PI*2); ctx.arc(35, 0, 20, 0, Math.PI*2); ctx.fill(); ctx.restore();
-            });
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            clouds.forEach(c => { c.x -= c.speed; if(c.x < -150) c.x = canvas.width + 150; ctx.save(); ctx.translate(c.x, c.y); ctx.scale(c.scale, c.scale); ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI*2); ctx.arc(20, -15, 30, 0, Math.PI*2); ctx.arc(45, 0, 25, 0, Math.PI*2); ctx.fill(); ctx.restore(); });
 
-            // Center Line Marker
-            ctx.fillStyle = "#94a3b8";
-            ctx.beginPath(); ctx.moveTo(canvas.width / 2 - 15, canvas.height - 20); ctx.lineTo(canvas.width / 2 + 15, canvas.height - 20); ctx.lineTo(canvas.width / 2 + 10, canvas.height - 40); ctx.lineTo(canvas.width / 2 - 10, canvas.height - 40); ctx.fill();
-            ctx.strokeStyle = "rgba(255,255,255,0.7)"; ctx.lineWidth = 4; ctx.setLineDash([10, 10]);
-            ctx.beginPath(); ctx.moveTo(canvas.width / 2, canvas.height - 40); ctx.lineTo(canvas.width / 2, canvas.height - 200); ctx.stroke(); ctx.setLineDash([]);
+            // Bunga kecil di rumput
+            ctx.fillStyle = "#fbcfe8"; ctx.beginPath(); ctx.arc(150, canvas.height - 40, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = "#fef08a"; ctx.beginPath(); ctx.arc(650, canvas.height - 60, 4, 0, Math.PI*2); ctx.fill();
         }
 
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBackground();
+            ctx.clearRect(0, 0, canvas.width, canvas.height); drawBackground();
+            visualOffset += (targetRopeOffset - visualOffset) * 0.1; const centerY = canvas.height - 80; const centerX = canvas.width / 2; const pixelOffset = (visualOffset / WIN_SCORE) * 250; const knotX = centerX + pixelOffset;
+            
+            // Tali
+            ctx.strokeStyle = "#b45309"; ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(100, centerY); const controlY = centerY + (Math.sin(Date.now() / 200) * 5) + Math.abs(visualOffset)*1.5; ctx.quadraticCurveTo(centerX, controlY, canvas.width - 100, centerY); ctx.stroke();
+            ctx.strokeStyle = "#fcd34d"; ctx.lineWidth = 4; ctx.setLineDash([15, 20]); ctx.beginPath(); ctx.moveTo(100, centerY); ctx.quadraticCurveTo(centerX, controlY, canvas.width - 100, centerY); ctx.stroke(); ctx.setLineDash([]);
+            
+            // Tiang Bendera Tengah & Bendera Merah (Ganti Bintang)
+            ctx.strokeStyle="#78350f"; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(centerX, centerY + 20); ctx.lineTo(centerX, centerY - 80); ctx.stroke();
+            ctx.fillStyle="#ef4444"; ctx.beginPath(); ctx.moveTo(centerX+3, centerY - 75); ctx.lineTo(centerX + 30, centerY - 65); ctx.lineTo(centerX+3, centerY - 55); ctx.fill();
+            
+            // Penanda Tali (Knot)
+            ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.roundRect(knotX - 10, controlY - 15, 20, 30, 5); ctx.fill(); ctx.strokeStyle = "white"; ctx.lineWidth=2; ctx.stroke();
 
-            visualOffset += (targetRopeOffset - visualOffset) * 0.1;
-            const centerY = canvas.height - 110; 
-            const centerX = canvas.width / 2;
-            const pixelOffset = (visualOffset / WIN_SCORE) * 200;
-            const knotX = centerX + pixelOffset;
-
-            // Rope
-            ctx.strokeStyle = "#d97706"; ctx.lineWidth = 14; ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(100, centerY);
-            const controlY = centerY + (Math.sin(Date.now() / 200) * 8) + Math.abs(visualOffset)*2; 
-            ctx.quadraticCurveTo(centerX, controlY, canvas.width - 100, centerY); ctx.stroke();
-
-            ctx.strokeStyle = "white"; ctx.lineWidth = 6; ctx.setLineDash([15, 20]);
-            ctx.beginPath(); ctx.moveTo(100, centerY); ctx.quadraticCurveTo(centerX, controlY, canvas.width - 100, centerY); ctx.stroke(); ctx.setLineDash([]);
-
-            // Center Star
-            ctx.save(); ctx.translate(knotX, controlY - 10); ctx.rotate(Date.now() / 500); 
-            ctx.fillStyle = "#fbf24"; ctx.beginPath();
-            for (let i = 0; i < 5; i++) {
-                ctx.lineTo(Math.cos((18 + i * 72) / 180 * Math.PI) * 15, -Math.sin((18 + i * 72) / 180 * Math.PI) * 15);
-                ctx.lineTo(Math.cos((54 + i * 72) / 180 * Math.PI) * 7, -Math.sin((54 + i * 72) / 180 * Math.PI) * 7);
-            }
-            ctx.closePath(); ctx.fill(); ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
-
-            drawDoraemon(ctx, 180 + pixelOffset * 0.3, centerY + 10, true);
-            drawDoraemon(ctx, 100 + pixelOffset * 0.3, centerY + 10, true);
-
-            drawNobita(ctx, canvas.width - 180 + pixelOffset * 0.3, centerY + 10, false);
-            drawNobita(ctx, canvas.width - 100 + pixelOffset * 0.3, centerY + 10, false);
-
+            // Karakter
+            drawDoraemon(ctx, 220 + pixelOffset * 0.4, centerY + 10, true); drawDoraemon(ctx, 120 + pixelOffset * 0.4, centerY + 10, true);
+            drawNobita(ctx, canvas.width - 220 + pixelOffset * 0.4, centerY + 10, false); drawNobita(ctx, canvas.width - 120 + pixelOffset * 0.4, centerY + 10, false);
+            
             requestAnimationFrame(animate);
         }
 
-        initUI();
-        animate();
-
+        initUI(); animate();
     </script>
 </body>
 </html>
